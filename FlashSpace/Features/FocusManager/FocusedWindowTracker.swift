@@ -14,18 +14,15 @@ final class FocusedWindowTracker {
     private let workspaceRepository: WorkspaceRepository
     private let workspaceManager: WorkspaceManager
     private let settingsRepository: SettingsRepository
-    private let pictureInPictureManager: PictureInPictureManager
 
     init(
         workspaceRepository: WorkspaceRepository,
         workspaceManager: WorkspaceManager,
-        settingsRepository: SettingsRepository,
-        pictureInPictureManager: PictureInPictureManager
+        settingsRepository: SettingsRepository
     ) {
         self.workspaceRepository = workspaceRepository
         self.workspaceManager = workspaceManager
         self.settingsRepository = settingsRepository
-        self.pictureInPictureManager = pictureInPictureManager
 
         activateWorkspaceForFocusedApp(force: true)
     }
@@ -71,9 +68,6 @@ final class FocusedWindowTracker {
         // Skip if the workspace was activated recently
         guard Date().timeIntervalSince(workspaceManager.lastWorkspaceActivation) > 0.2 else { return }
 
-        // Skip if the app is floating
-        guard !settingsRepository.floatingAppsSettings.floatingApps.containsApp(app) else { return }
-
         // Find the workspace that contains the app.
         // The same app can be in multiple workspaces, the highest priority has the one
         // from the active workspace.
@@ -83,11 +77,6 @@ final class FocusedWindowTracker {
         // Skip if the workspace is already active
         guard activeWorkspaces.count(where: { $0.id == workspace.id }) < workspace.displays.count else { return }
 
-        // Skip if the focused window is in Picture in Picture mode
-        guard !settingsRepository.workspaceSettings.enablePictureInPictureSupport ||
-            !app.supportsPictureInPicture ||
-            app.focusedWindow?.isPictureInPicture(bundleId: app.bundleIdentifier) != true else { return }
-
         let activate = { [self] in
             Logger.log("")
             Logger.log("")
@@ -95,11 +84,6 @@ final class FocusedWindowTracker {
             workspaceManager.updateLastFocusedApp(app.toMacApp, in: workspace)
             workspaceManager.activateWorkspace(workspace, setFocus: false)
             app.activate()
-
-            // Restore the app if it was hidden
-            if settingsRepository.workspaceSettings.enablePictureInPictureSupport, app.supportsPictureInPicture {
-                pictureInPictureManager.restoreAppIfNeeded(app: app)
-            }
         }
 
         if workspace.isDynamic, workspace.displays.isEmpty {

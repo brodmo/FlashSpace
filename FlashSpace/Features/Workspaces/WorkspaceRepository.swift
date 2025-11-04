@@ -17,16 +17,19 @@ final class WorkspaceRepository: ObservableObject {
     }
 
     private let workspacesSubject = PassthroughSubject<[Workspace], Never>()
-    private let profilesRepository: ProfilesRepository
 
-    init(profilesRepository: ProfilesRepository) {
-        self.profilesRepository = profilesRepository
-        self.workspaces = profilesRepository.selectedProfile.workspaces
+    init() {
+        loadWorkspaces()
+    }
 
-        profilesRepository.onProfileChange = { [weak self] profile in
-            self?.workspaces = profile.workspaces
-            self?.workspacesSubject.send(profile.workspaces)
+    private func loadWorkspaces() {
+        if let workspaces: [Workspace] = try? ConfigSerializer.deserialize(filename: "workspaces") {
+            self.workspaces = workspaces
         }
+    }
+
+    private func saveWorkspaces() {
+        try? ConfigSerializer.serialize(filename: "workspaces", workspaces)
     }
 
     func findWorkspace(with id: WorkspaceID) -> Workspace? {
@@ -125,7 +128,7 @@ final class WorkspaceRepository: ObservableObject {
     }
 
     private func notifyAboutChanges() {
-        profilesRepository.updateWorkspaces(workspaces)
+        saveWorkspaces()
         workspacesSubject.send(workspaces)
     }
 }

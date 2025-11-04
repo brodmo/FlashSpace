@@ -14,11 +14,6 @@ struct AppDependencies {
     let workspaceRepository: WorkspaceRepository
     let workspaceManager: WorkspaceManager
     let workspaceHotKeys: WorkspaceHotKeys
-    let workspaceScreenshotManager: WorkspaceScreenshotManager
-    let workspaceTransitionManager: WorkspaceTransitionManager
-    let pictureInPictureManager: PictureInPictureManager
-
-    let floatingAppsHotKeys: FloatingAppsHotKeys
 
     let hotKeysMonitor: HotKeysMonitorProtocol = GlobalShortcutMonitor.shared
     let hotKeysManager: HotKeysManager
@@ -29,48 +24,23 @@ struct AppDependencies {
     let settingsRepository: SettingsRepository
     let generalSettings = GeneralSettings()
     let menuBarSettings = MenuBarSettings()
-    let gesturesSettings = GesturesSettings()
     let focusManagerSettings = FocusManagerSettings()
     let workspaceSettings = WorkspaceSettings()
-    let floatingAppsSettings = FloatingAppsSettings()
-    let spaceControlSettings = SpaceControlSettings()
-    let integrationsSettings = IntegrationsSettings()
-    let profileSettings = ProfileSettings()
 
-    let profilesRepository: ProfilesRepository
     let autostartService = AutostartService()
-    let cliServer = CLIServer()
 
-    // swiftlint:disable:next function_body_length
     private init() {
         self.settingsRepository = SettingsRepository(
             generalSettings: generalSettings,
             menuBarSettings: menuBarSettings,
-            gesturesSettings: gesturesSettings,
             focusManagerSettings: focusManagerSettings,
-            workspaceSettings: workspaceSettings,
-            floatingAppsSettings: floatingAppsSettings,
-            spaceControlSettings: spaceControlSettings,
-            integrationsSettings: integrationsSettings,
-            profileSettings: profileSettings
-        )
-        self.displayManager = DisplayManager(settingsRepository: settingsRepository)
-        self.workspaceTransitionManager = WorkspaceTransitionManager(
             workspaceSettings: workspaceSettings
         )
-        self.pictureInPictureManager = PictureInPictureManager(
-            settingsRepository: settingsRepository
-        )
-        self.profilesRepository = ProfilesRepository()
-        self.workspaceRepository = WorkspaceRepository(
-            profilesRepository: profilesRepository
-        )
+        self.displayManager = DisplayManager(settingsRepository: settingsRepository)
+        self.workspaceRepository = WorkspaceRepository()
         self.workspaceManager = WorkspaceManager(
             workspaceRepository: workspaceRepository,
             settingsRepository: settingsRepository,
-            profilesRepository: profilesRepository,
-            pictureInPictureManager: pictureInPictureManager,
-            workspaceTransitionManager: workspaceTransitionManager,
             displayManager: displayManager
         )
         self.workspaceHotKeys = WorkspaceHotKeys(
@@ -78,38 +48,25 @@ struct AppDependencies {
             workspaceRepository: workspaceRepository,
             settingsRepository: settingsRepository
         )
-        self.floatingAppsHotKeys = FloatingAppsHotKeys(
-            workspaceManager: workspaceManager,
-            settingsRepository: settingsRepository
-        )
         self.focusManager = FocusManager(
             workspaceRepository: workspaceRepository,
             workspaceManager: workspaceManager,
-            focusManagerSettings: focusManagerSettings,
-            floatingAppsSettings: floatingAppsSettings
+            focusManagerSettings: focusManagerSettings
         )
         self.hotKeysManager = HotKeysManager(
             hotKeysMonitor: GlobalShortcutMonitor.shared,
             workspaceHotKeys: workspaceHotKeys,
-            floatingAppsHotKeys: floatingAppsHotKeys,
             focusManager: focusManager,
-            settingsRepository: settingsRepository,
-            profilesRepository: profilesRepository
+            settingsRepository: settingsRepository
         )
         self.focusedWindowTracker = FocusedWindowTracker(
             workspaceRepository: workspaceRepository,
             workspaceManager: workspaceManager,
-            settingsRepository: settingsRepository,
-            pictureInPictureManager: pictureInPictureManager
-        )
-        self.workspaceScreenshotManager = WorkspaceScreenshotManager(
-            spaceControlSettings: spaceControlSettings,
-            workspaceManager: workspaceManager
+            settingsRepository: settingsRepository
         )
 
         Migrations.migrateIfNeeded(
-            settingsRepository: settingsRepository,
-            profilesRepository: profilesRepository
+            settingsRepository: settingsRepository
         )
 
         focusedWindowTracker.startTracking()

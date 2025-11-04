@@ -11,24 +11,14 @@ import Foundation
 final class SettingsRepository: ObservableObject {
     private(set) var generalSettings: GeneralSettings
     private(set) var menuBarSettings: MenuBarSettings
-    private(set) var gesturesSettings: GesturesSettings
     private(set) var focusManagerSettings: FocusManagerSettings
     private(set) var workspaceSettings: WorkspaceSettings
-    private(set) var floatingAppsSettings: FloatingAppsSettings
-    private(set) var spaceControlSettings: SpaceControlSettings
-    private(set) var integrationsSettings: IntegrationsSettings
-    private(set) var profileSettings: ProfileSettings
 
     private lazy var allSettings: [SettingsProtocol] = [
         generalSettings,
         menuBarSettings,
-        gesturesSettings,
         focusManagerSettings,
-        workspaceSettings,
-        floatingAppsSettings,
-        spaceControlSettings,
-        integrationsSettings,
-        profileSettings
+        workspaceSettings
     ]
 
     private var currentSettings = AppSettings()
@@ -38,23 +28,13 @@ final class SettingsRepository: ObservableObject {
     init(
         generalSettings: GeneralSettings,
         menuBarSettings: MenuBarSettings,
-        gesturesSettings: GesturesSettings,
         focusManagerSettings: FocusManagerSettings,
-        workspaceSettings: WorkspaceSettings,
-        floatingAppsSettings: FloatingAppsSettings,
-        spaceControlSettings: SpaceControlSettings,
-        integrationsSettings: IntegrationsSettings,
-        profileSettings: ProfileSettings
+        workspaceSettings: WorkspaceSettings
     ) {
         self.generalSettings = generalSettings
         self.menuBarSettings = menuBarSettings
-        self.gesturesSettings = gesturesSettings
         self.focusManagerSettings = focusManagerSettings
         self.workspaceSettings = workspaceSettings
-        self.floatingAppsSettings = floatingAppsSettings
-        self.spaceControlSettings = spaceControlSettings
-        self.integrationsSettings = integrationsSettings
-        self.profileSettings = profileSettings
 
         loadFromDisk()
 

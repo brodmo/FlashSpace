@@ -19,28 +19,21 @@ final class FocusManager {
     private let workspaceRepository: WorkspaceRepository
     private let workspaceManager: WorkspaceManager
     private let settings: FocusManagerSettings
-    private let floatingAppsSettings: FloatingAppsSettings
 
     init(
         workspaceRepository: WorkspaceRepository,
         workspaceManager: WorkspaceManager,
-        focusManagerSettings: FocusManagerSettings,
-        floatingAppsSettings: FloatingAppsSettings
+        focusManagerSettings: FocusManagerSettings
     ) {
         self.workspaceRepository = workspaceRepository
         self.workspaceManager = workspaceManager
         self.settings = focusManagerSettings
-        self.floatingAppsSettings = floatingAppsSettings
     }
 
     func getHotKeys() -> [(AppHotKey, () -> ())] {
         guard settings.enableFocusManagement else { return [] }
 
         return [
-            settings.focusLeft.flatMap { ($0, focusLeft) },
-            settings.focusRight.flatMap { ($0, focusRight) },
-            settings.focusUp.flatMap { ($0, focusUp) },
-            settings.focusDown.flatMap { ($0, focusDown) },
             settings.focusNextWorkspaceApp.flatMap { ($0, nextWorkspaceApp) },
             settings.focusPreviousWorkspaceApp.flatMap { ($0, previousWorkspaceApp) },
             settings.focusNextWorkspaceWindow.flatMap { ($0, nextWorkspaceWindow) },
@@ -141,69 +134,6 @@ final class FocusManager {
             .activate()
     }
 
-    func focusRight() {
-        focus { focusedAppFrame, other in
-            other.maxX > focusedAppFrame.maxX &&
-                other.verticalIntersect(with: focusedAppFrame)
-        }
-    }
-
-    func focusLeft() {
-        focus { focusedAppFrame, other in
-            other.minX < focusedAppFrame.minX &&
-                other.verticalIntersect(with: focusedAppFrame)
-        }
-    }
-
-    func focusDown() {
-        focus { focusedAppFrame, other in
-            other.maxY > focusedAppFrame.maxY &&
-                other.horizontalIntersect(with: focusedAppFrame)
-        }
-    }
-
-    func focusUp() {
-        focus { focusedAppFrame, other in
-            other.minY < focusedAppFrame.minY &&
-                other.horizontalIntersect(with: focusedAppFrame)
-        }
-    }
-
-    /// Predicate compares two frames using window coordinates.
-    /// (0,0) is top-left corner relative to the main screen.
-    /// Y-axis is pointing down.
-    private func focus(predicate: (CGRect, CGRect) -> Bool) {
-        guard let focusedAppFrame else { return }
-
-        let appsToCheck = visibleApps
-            .flatMap { app in
-                app.allWindows.map {
-                    (app: app, window: $0.window, frame: $0.frame)
-                }
-            }
-
-        let toFocus = appsToCheck
-            .filter { predicate(focusedAppFrame, $0.frame) && !$0.window.isMinimized }
-            .sorted { $0.frame.distance(to: focusedAppFrame) < $1.frame.distance(to: focusedAppFrame) }
-            .first { app in
-                guard settings.focusFrontmostWindow else { return true }
-
-                let otherWindows = appsToCheck
-                    .filter { $0.app != app.app && $0.app != focusedApp }
-                    .map(\.window)
-                return !app.window.isBelowAnyOf(otherWindows)
-            }
-
-        toFocus?.window.focus()
-        toFocus?.app.activate()
-        centerCursorIfNeeded(in: toFocus?.frame)
-    }
-
-    private func centerCursorIfNeeded(in frame: CGRect?) {
-        guard settings.centerCursorOnFocusChange, let frame else { return }
-
-        CGWarpMouseCursorPosition(CGPoint(x: frame.midX, y: frame.midY))
-    }
 
     private func getFocusedAppIndex() -> (Int, [MacApp])? {
         guard let focusedApp else { return nil }
@@ -213,8 +143,7 @@ final class FocusManager {
 
         guard let workspace else { return nil }
 
-        let apps = workspace.apps + floatingAppsSettings.floatingApps
-            .filter { !$0.isFinder }
+        let apps = workspace.apps
 
         let index = apps.firstIndex(of: focusedApp) ?? 0
 

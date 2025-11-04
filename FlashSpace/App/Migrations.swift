@@ -12,8 +12,7 @@ enum Migrations {
     static var hotKeysMigrated = false
 
     static func migrateIfNeeded(
-        settingsRepository: SettingsRepository,
-        profilesRepository: ProfilesRepository
+        settingsRepository: SettingsRepository
     ) {
         if Migrations.appsMigrated {
             Logger.log("Migrated apps")
@@ -28,11 +27,9 @@ enum Migrations {
             )
 
             settingsRepository.saveToDisk()
-            profilesRepository.saveToDisk()
         } else if Migrations.hotKeysMigrated {
             Logger.log("Migrated hot keys")
             settingsRepository.saveToDisk()
-            profilesRepository.saveToDisk()
         }
 
         Migrations.appsMigrated = false

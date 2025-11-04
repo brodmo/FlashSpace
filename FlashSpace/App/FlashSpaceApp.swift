@@ -1,6 +1,6 @@
 //
-//  FlashSpaceApp.swift
-//  FlashSpace
+//  FlashCutApp.swift
+//  FlashCut
 //
 //  Created by Wojciech Kulik on 19/01/2025.
 //
@@ -8,11 +8,11 @@
 import SwiftUI
 
 @main
-struct FlashSpaceApp: App {
+struct FlashCutApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     var body: some Scene {
-        Window("⚡ FlashSpace v\(AppConstants.version)", id: "main") {
+        Window("⚡ FlashCut v\(AppConstants.version)", id: "main") {
             MainView()
         }
         .windowResizability(.contentSize)
@@ -22,6 +22,6 @@ struct FlashSpaceApp: App {
         }
         .windowResizability(.contentSize)
 
-        FlashSpaceMenuBar()
+        FlashCutMenuBar()
     }
 }

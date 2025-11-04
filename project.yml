@@ -1,12 +1,12 @@
 ---
-name: FlashSpace
+name: FlashCut
 
 options:
   createIntermediateGroups: true
   indentWidth: 4
   tabWidth: 4
   groupSortPosition: top
-  bundleIdPrefix: pl.wojciechkulik
+  bundleIdPrefix: com.flashcut
 
 packages:
   ShortcutRecorder:
@@ -26,7 +26,7 @@ packages:
     from: 2.7.0
 
 targets:
-  FlashSpace:
+  FlashCut:
     type: application
     platform: macOS
     deploymentTarget: "14.0"
@@ -39,8 +39,8 @@ targets:
 
     settings:
       base:
-        MARKETING_VERSION: 4.10.61
-        CURRENT_PROJECT_VERSION: 61
+        MARKETING_VERSION: 1.0.0
+        CURRENT_PROJECT_VERSION: 1
         CODE_SIGN_ENTITLEMENTS: FlashSpace/FlashSpace.entitlements
         DEVELOPMENT_TEAM: "${XCODE_DEVELOPMENT_TEAM}"
         ENABLE_HARDENED_RUNTIME: true
@@ -50,13 +50,13 @@ targets:
         GENERATE_INFOPLIST_FILE: true
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.productivity
         INFOPLIST_KEY_LSUIElement: true
-        INFOPLIST_KEY_CFBundleDisplayName: FlashSpace
-        INFOPLIST_KEY_NSHumanReadableCopyright: © 2025 Wojciech Kulik. All rights reserved.
+        INFOPLIST_KEY_CFBundleDisplayName: FlashCut
+        INFOPLIST_KEY_NSHumanReadableCopyright: © 2025 FlashCut. All rights reserved.
       configs:
         debug:
-          INFOPLIST_KEY_CFBundleDisplayName: FlashSpace Dev
-          PRODUCT_NAME: FlashSpace-Dev
-          PRODUCT_BUNDLE_IDENTIFIER: pl.wojciechkulik.FlashSpace.dev
+          INFOPLIST_KEY_CFBundleDisplayName: FlashCut Dev
+          PRODUCT_NAME: FlashCut-Dev
+          PRODUCT_BUNDLE_IDENTIFIER: com.flashcut.FlashCut.dev
 
     dependencies:
       - sdk: ServiceManagement.framework
@@ -79,27 +79,5 @@ targets:
           if [ "$GITHUB_ACTIONS" != "true" ]; then
             /opt/homebrew/bin/swiftformat --lint ${SRCROOT} --config .swiftformat || exit 0
           fi
-        basedOnDependencyAnalysis: false
-        showEnvVars: false
-    postBuildScripts:
-      - name: Build & Copy FlashSpace CLI
-        script: |
-          SOURCE_PATH="FlashSpaceCLI/.build/flashspace"
-          DESTINATION_PATH="${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Resources/"
-
-          if [ ! -e "$SOURCE_PATH" ] || [ "$CONFIGURATION" == "Release" ]; then
-            echo "Building FlashSpace CLI"
-            swift build --arch x86_64 -c release --package-path FlashSpaceCLI
-            swift build --arch arm64 -c release --package-path FlashSpaceCLI
-            lipo -create \
-              FlashSpaceCLI/.build/arm64-apple-macosx/release/flashspace \
-              FlashSpaceCLI/.build/x86_64-apple-macosx/release/flashspace \
-              -output FlashSpaceCLI/.build/flashspace
-          else
-            echo "FlashSpace CLI already built"
-          fi
-
-          echo "Copying FlashSpace CLI from $SOURCE_PATH to $DESTINATION_PATH"
-          cp "$SOURCE_PATH" "$DESTINATION_PATH"
         basedOnDependencyAnalysis: false
         showEnvVars: false
