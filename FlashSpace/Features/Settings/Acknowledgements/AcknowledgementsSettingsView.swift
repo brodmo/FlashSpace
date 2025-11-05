@@ -8,12 +8,10 @@
 import SwiftUI
 
 struct AcknowledgementsSettingsView: View {
-    @State private var selectedDependency: String? = "xnth97/SymbolPicker"
+    @State private var selectedDependency: String? = "Kentzo/ShortcutRecorder"
     @State private var dependencies = [
-        "xnth97/SymbolPicker",
         "Kentzo/ShortcutRecorder",
         "LebJe/TOMLKit",
-        "jpsim/Yams",
         "sparkle-project/Sparkle",
         "apple/swift-argument-parser",
         "SwiftFormat",
@@ -37,14 +35,10 @@ struct AcknowledgementsSettingsView: View {
                 VStack {
                     Group {
                         switch selectedDependency {
-                        case "xnth97/SymbolPicker":
-                            Text(Licenses.symbolPicker)
                         case "Kentzo/ShortcutRecorder":
                             Text(Licenses.shortcutRecorder)
                         case "LebJe/TOMLKit":
                             Text(Licenses.tomlKit)
-                        case "jpsim/Yams":
-                            Text(Licenses.yams)
                         case "sparkle-project/Sparkle":
                             Text(Licenses.sparkle)
                         case "apple/swift-argument-parser":
