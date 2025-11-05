@@ -9,6 +9,11 @@ import AppKit
 import Combine
 import Foundation
 
+// TOML requires a root dictionary, not an array
+private struct AppGroupsConfig: Codable {
+    var appGroups: [AppGroup]
+}
+
 final class AppGroupRepository: ObservableObject {
     @Published private(set) var appGroups: [AppGroup] = []
 
@@ -23,13 +28,14 @@ final class AppGroupRepository: ObservableObject {
     }
 
     private func loadAppGroups() {
-        if let appGroups = try? ConfigSerializer.deserialize([AppGroup].self, filename: "appgroups") {
-            self.appGroups = appGroups
+        if let config = try? ConfigSerializer.deserialize(AppGroupsConfig.self, filename: "appgroups") {
+            self.appGroups = config.appGroups
         }
     }
 
     private func saveAppGroups() {
-        try? ConfigSerializer.serialize(filename: "appgroups", appGroups)
+        let config = AppGroupsConfig(appGroups: appGroups)
+        try? ConfigSerializer.serialize(filename: "appgroups", config)
     }
 
     func findAppGroup(with id: AppGroupID) -> AppGroup? {
