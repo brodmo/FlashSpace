@@ -9,17 +9,12 @@ import AppKit
 import SwiftUI
 
 struct ConfigurationFileSettingsView: View {
-    @State var configFormat: ConfigFormat = ConfigSerializer.format
-
     var body: some View {
         Form {
             Section {
-                Picker("Format", selection: $configFormat) {
-                    ForEach(ConfigFormat.allCases, id: \.rawValue) { format in
-                        Text(format.displayName).tag(format)
-                    }
-                }.onChange(of: configFormat) { _, newFormat in
-                    try? ConfigSerializer.convert(to: newFormat)
+                HStack {
+                    Text("Format: TOML")
+                        .foregroundStyle(.secondary)
                 }
 
                 HStack {
@@ -33,7 +28,7 @@ struct ConfigurationFileSettingsView: View {
                 }
 
                 Text(
-                    "If you manually edit the configuration file, make sure to restart FlashSpace.\n" +
+                    "If you manually edit the configuration file, make sure to restart FlashCut.\n" +
                         "Custom formatting, order, comments, etc. will be overwritten if you change something in the app."
                 )
                 .foregroundStyle(.secondary)
