@@ -56,7 +56,6 @@ enum ConfigSerializer {
 
         format = to
         AppDependencies.shared.settingsRepository.saveToDisk()
-        AppDependencies.shared.profilesRepository.saveToDisk()
 
         Logger.log("Converted config format to \(to.displayName)")
     }

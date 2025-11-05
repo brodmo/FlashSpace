@@ -40,22 +40,9 @@ final class DisplayManager: ObservableObject {
     }
 
     func resolveDisplay(_ display: DisplayName) -> DisplayName {
+        // Simplified: if display not connected, fall back to main screen
         guard !NSScreen.isConnected(display) else { return display }
-
-        let alternativeDisplays = workspaceSettings.alternativeDisplays
-            .split(separator: ";")
-            .map { $0.split(separator: "=") }
-            .compactMap { pair -> (source: String, target: String)? in
-                guard pair.count == 2 else { return nil }
-                return (String(pair[0]).trimmed, String(pair[1]).trimmed)
-            }
-
-        let alternative = alternativeDisplays
-            .filter { $0.source == display }
-            .map(\.target)
-            .first(where: NSScreen.isConnected)
-
-        return alternative ?? NSScreen.main?.localizedName ?? ""
+        return NSScreen.main?.localizedName ?? ""
     }
 
     func lastActiveDisplay(from candidates: Set<DisplayName>) -> DisplayName {
