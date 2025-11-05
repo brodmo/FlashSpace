@@ -40,10 +40,7 @@ final class AppGroupManager: ObservableObject {
         }
 
         // Otherwise just pick first running app from the group
-        let fallbackApp = runningApps.findFirstMatch(with: appGroup.apps)
-        let fallbackToFinder = NSWorkspace.shared.runningApplications.first { $0.bundleIdentifier == "com.apple.finder" }
-
-        return fallbackApp ?? fallbackToFinder
+        return runningApps.findFirstMatch(with: appGroup.apps)
     }
 
     private func openAppsIfNeeded(in appGroup: AppGroup) {
