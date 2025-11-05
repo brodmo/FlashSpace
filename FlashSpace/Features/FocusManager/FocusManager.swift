@@ -107,7 +107,6 @@ final class FocusManager {
 
         let appsQueue = apps.dropFirst(index + 1) + apps.prefix(index)
         let runningApps = NSWorkspace.shared.runningApplications
-            .excludeFloatingAppsOnDifferentScreen()
             .compactMap(\.bundleIdentifier)
             .asSet
         let nextApp = appsQueue.first { app in runningApps.contains(app.bundleIdentifier) }
@@ -121,7 +120,6 @@ final class FocusManager {
         guard let (index, apps) = getFocusedAppIndex() else { return }
 
         let runningApps = NSWorkspace.shared.runningApplications
-            .excludeFloatingAppsOnDifferentScreen()
             .compactMap(\.bundleIdentifier)
             .asSet
         let prefixApps = apps.prefix(index).reversed()
@@ -158,7 +156,6 @@ final class FocusManager {
 
         return NSWorkspace.shared.runningApplications
             .filter { !$0.isHidden && apps.containsApp($0) }
-            .excludeFloatingAppsOnDifferentScreen()
             .map { MacAppWithWindows(app: $0) }
             .sorted { order[$0.bundleIdentifier] ?? 0 < order[$1.bundleIdentifier] ?? 0 }
     }

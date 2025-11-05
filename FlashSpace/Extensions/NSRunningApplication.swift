@@ -24,9 +24,4 @@ extension [NSRunningApplication] {
 
         return first { bundleIdentifiers.contains($0.bundleIdentifier ?? "") }
     }
-
-    func excludeFloatingAppsOnDifferentScreen() -> [NSRunningApplication] {
-        // No floating apps feature in FlashCut, return all apps
-        self
-    }
 }
