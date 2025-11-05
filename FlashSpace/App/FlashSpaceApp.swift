@@ -65,7 +65,7 @@ struct FlashCutApp: App {
             let hasVisibleWindows = NSApp.windows.contains { window in
                 window.isVisible && (
                     window.identifier?.rawValue == "main" ||
-                    window.identifier?.rawValue == "settings"
+                        window.identifier?.rawValue == "settings"
                 )
             }
 

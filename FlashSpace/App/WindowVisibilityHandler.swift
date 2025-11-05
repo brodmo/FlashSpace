@@ -9,17 +9,17 @@
 import SwiftUI
 
 struct WindowVisibilityHandler<Content: View>: View {
-    let showDockIcon: () -> Void
-    let hideDockIcon: () -> Void
-    let setupHandlers: (() -> Void)?
+    let showDockIcon: () -> ()
+    let hideDockIcon: () -> ()
+    let setupHandlers: (() -> ())?
     let content: Content
 
     @State private var hasSetup = false
 
     init(
-        showDockIcon: @escaping () -> Void,
-        hideDockIcon: @escaping () -> Void,
-        setupHandlers: (() -> Void)? = nil,
+        showDockIcon: @escaping () -> (),
+        hideDockIcon: @escaping () -> (),
+        setupHandlers: (() -> ())? = nil,
         @ViewBuilder content: () -> Content
     ) {
         self.showDockIcon = showDockIcon
