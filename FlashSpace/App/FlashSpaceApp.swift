@@ -5,6 +5,7 @@
 //  Created by Wojciech Kulik on 19/01/2025.
 //
 
+import AppKit
 import Combine
 import SwiftUI
 
@@ -23,12 +24,22 @@ struct FlashCutApp: App {
                 .onAppear {
                     setupWindowHandling()
                     handleFirstLaunch()
+                    showDockIcon()
+                }
+                .onDisappear {
+                    hideDockIconIfNoWindows()
                 }
         }
         .windowResizability(.contentSize)
 
         Window("Settings", id: "settings") {
             SettingsView()
+                .onAppear {
+                    showDockIcon()
+                }
+                .onDisappear {
+                    hideDockIconIfNoWindows()
+                }
         }
         .windowResizability(.contentSize)
     }
@@ -48,6 +59,29 @@ struct FlashCutApp: App {
             firstLaunch = false
         } else {
             dismissWindow(id: "main")
+        }
+    }
+
+    private func showDockIcon() {
+        if NSApp.activationPolicy() != .regular {
+            NSApp.setActivationPolicy(.regular)
+            NSApp.activate(ignoringOtherApps: true)
+        }
+    }
+
+    private func hideDockIconIfNoWindows() {
+        // Use a small delay to let window close animation complete
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            let hasVisibleWindows = NSApp.windows.contains { window in
+                window.isVisible && (
+                    window.identifier?.rawValue == "main" ||
+                    window.identifier?.rawValue == "settings"
+                )
+            }
+
+            if !hasVisibleWindows {
+                NSApp.setActivationPolicy(.accessory)
+            }
         }
     }
 }
