@@ -1,5 +1,5 @@
 //
-//  WorkspaceRepository.swift
+//  AppGroupRepository.swift
 //
 //  Created by Wojciech Kulik on 19/01/2025.
 //  Copyright © 2025 Wojciech Kulik. All rights reserved.
@@ -9,124 +9,124 @@ import AppKit
 import Combine
 import Foundation
 
-final class WorkspaceRepository: ObservableObject {
-    @Published private(set) var workspaces: [Workspace] = []
+final class AppGroupRepository: ObservableObject {
+    @Published private(set) var appGroups: [AppGroup] = []
 
-    var workspacesPublisher: AnyPublisher<[Workspace], Never> {
-        workspacesSubject.eraseToAnyPublisher()
+    var appGroupsPublisher: AnyPublisher<[AppGroup], Never> {
+        appGroupsSubject.eraseToAnyPublisher()
     }
 
-    private let workspacesSubject = PassthroughSubject<[Workspace], Never>()
+    private let appGroupsSubject = PassthroughSubject<[AppGroup], Never>()
 
     init() {
-        loadWorkspaces()
+        loadAppGroups()
     }
 
-    private func loadWorkspaces() {
-        if let workspaces = try? ConfigSerializer.deserialize([Workspace].self, filename: "workspaces") {
-            self.workspaces = workspaces
+    private func loadAppGroups() {
+        if let appGroups = try? ConfigSerializer.deserialize([AppGroup].self, filename: "appgroups") {
+            self.appGroups = appGroups
         }
     }
 
-    private func saveWorkspaces() {
-        try? ConfigSerializer.serialize(filename: "workspaces", workspaces)
+    private func saveAppGroups() {
+        try? ConfigSerializer.serialize(filename: "appgroups", appGroups)
     }
 
-    func findWorkspace(with id: WorkspaceID) -> Workspace? {
-        workspaces.first { $0.id == id }
+    func findAppGroup(with id: AppGroupID) -> AppGroup? {
+        appGroups.first { $0.id == id }
     }
 
-    func addWorkspace(name: String) {
-        let workspace = Workspace(
+    func addAppGroup(name: String) {
+        let appGroup = AppGroup(
             id: .init(),
             name: name,
             activateShortcut: nil,
             apps: []
         )
-        workspaces.append(workspace)
+        appGroups.append(appGroup)
         notifyAboutChanges()
     }
 
-    func addWorkspace(_ workspace: Workspace) {
-        workspaces.append(workspace)
+    func addAppGroup(_ appGroup: AppGroup) {
+        appGroups.append(appGroup)
         notifyAboutChanges()
     }
 
-    func updateWorkspace(_ workspace: Workspace) {
-        guard let workspaceIndex = workspaces.firstIndex(where: { $0.id == workspace.id }) else { return }
+    func updateAppGroup(_ appGroup: AppGroup) {
+        guard let appGroupIndex = appGroups.firstIndex(where: { $0.id == appGroup.id }) else { return }
 
-        workspaces[workspaceIndex] = workspace
+        appGroups[appGroupIndex] = appGroup
         notifyAboutChanges()
         AppDependencies.shared.hotKeysManager.refresh()
     }
 
-    func deleteWorkspace(id: WorkspaceID) {
-        workspaces.removeAll { $0.id == id }
+    func deleteAppGroup(id: AppGroupID) {
+        appGroups.removeAll { $0.id == id }
         notifyAboutChanges()
     }
 
-    func deleteWorkspaces(ids: Set<WorkspaceID>) {
-        workspaces.removeAll { ids.contains($0.id) }
+    func deleteAppGroups(ids: Set<AppGroupID>) {
+        appGroups.removeAll { ids.contains($0.id) }
         notifyAboutChanges()
     }
 
-    func addApp(to workspaceId: WorkspaceID, app: MacApp) {
-        guard let workspaceIndex = workspaces.firstIndex(where: { $0.id == workspaceId }) else { return }
-        guard !workspaces[workspaceIndex].apps.contains(app) else { return }
+    func addApp(to appGroupId: AppGroupID, app: MacApp) {
+        guard let appGroupIndex = appGroups.firstIndex(where: { $0.id == appGroupId }) else { return }
+        guard !workspaces[appGroupIndex].apps.contains(app) else { return }
 
-        workspaces[workspaceIndex].apps.append(app)
+        appGroups[appGroupIndex].apps.append(app)
         notifyAboutChanges()
     }
 
-    func deleteApp(from workspaceId: WorkspaceID, app: MacApp, notify: Bool = true) {
-        guard let workspaceIndex = workspaces.firstIndex(where: { $0.id == workspaceId }) else { return }
+    func deleteApp(from appGroupId: AppGroupID, app: MacApp, notify: Bool = true) {
+        guard let appGroupIndex = appGroups.firstIndex(where: { $0.id == appGroupId }) else { return }
 
-        if workspaces[workspaceIndex].appToFocus == app {
-            workspaces[workspaceIndex].appToFocus = nil
+        if appGroups[appGroupIndex].appToFocus == app {
+            appGroups[appGroupIndex].appToFocus = nil
         }
 
-        workspaces[workspaceIndex].apps.removeAll { $0 == app }
+        appGroups[appGroupIndex].apps.removeAll { $0 == app }
         if notify { notifyAboutChanges() }
     }
 
-    func deleteAppFromAllWorkspaces(app: MacApp) {
-        for (index, var workspace) in workspaces.enumerated() {
-            workspace.apps.removeAll { $0 == app }
-            if workspace.appToFocus == app {
-                workspace.appToFocus = nil
+    func deleteAppFromAllAppGroups(app: MacApp) {
+        for (index, var appGroup) in appGroups.enumerated() {
+            appGroup.apps.removeAll { $0 == app }
+            if appGroup.appToFocus == app {
+                appGroup.appToFocus = nil
             }
 
-            workspaces[index] = workspace
+            appGroups[index] = appGroup
         }
         notifyAboutChanges()
     }
 
-    func reorderWorkspaces(newOrder: [WorkspaceID]) {
-        let map = newOrder.enumerated().reduce(into: [WorkspaceID: Int]()) { $0[$1.element] = $1.offset }
-        workspaces = workspaces.sorted { map[$0.id] ?? 0 < map[$1.id] ?? 0 }
+    func reorderAppGroups(newOrder: [AppGroupID]) {
+        let map = newOrder.enumerated().reduce(into: [AppGroupID: Int]()) { $0[$1.element] = $1.offset }
+        appGroups = appGroups.sorted { map[$0.id] ?? 0 < map[$1.id] ?? 0 }
         notifyAboutChanges()
     }
 
-    func moveApps(_ apps: [MacApp], from sourceWorkspaceId: WorkspaceID, to targetWorkspaceId: WorkspaceID) {
-        guard let sourceWorkspaceIndex = workspaces.firstIndex(where: { $0.id == sourceWorkspaceId }),
-              let targetWorkspaceIndex = workspaces.firstIndex(where: { $0.id == targetWorkspaceId }) else { return }
+    func moveApps(_ apps: [MacApp], from sourceAppGroupId: AppGroupID, to targetAppGroupId: AppGroupID) {
+        guard let sourceAppGroupIndex = appGroups.firstIndex(where: { $0.id == sourceAppGroupId }),
+              let targetAppGroupIndex = appGroups.firstIndex(where: { $0.id == targetAppGroupId }) else { return }
 
-        if let appToFocus = workspaces[sourceWorkspaceIndex].appToFocus, apps.contains(appToFocus) {
-            workspaces[sourceWorkspaceIndex].appToFocus = nil
+        if let appToFocus = appGroups[sourceAppGroupIndex].appToFocus, apps.contains(appToFocus) {
+            appGroups[sourceAppGroupIndex].appToFocus = nil
         }
 
-        let targetAppBundleIds = workspaces[targetWorkspaceIndex].apps.map(\.bundleIdentifier).asSet
+        let targetAppBundleIds = appGroups[targetAppGroupIndex].apps.map(\.bundleIdentifier).asSet
         let appsToAdd = apps.filter { !targetAppBundleIds.contains($0.bundleIdentifier) }
 
-        workspaces[sourceWorkspaceIndex].apps.removeAll { apps.contains($0) }
-        workspaces[targetWorkspaceIndex].apps.append(contentsOf: appsToAdd)
+        appGroups[sourceAppGroupIndex].apps.removeAll { apps.contains($0) }
+        appGroups[targetAppGroupIndex].apps.append(contentsOf: appsToAdd)
 
         notifyAboutChanges()
         NotificationCenter.default.post(name: .appsListChanged, object: nil)
     }
 
     private func notifyAboutChanges() {
-        saveWorkspaces()
-        workspacesSubject.send(workspaces)
+        saveAppGroups()
+        appGroupsSubject.send(appGroups)
     }
 }

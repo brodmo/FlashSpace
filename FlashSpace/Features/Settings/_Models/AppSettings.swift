@@ -14,15 +14,15 @@ struct AppSettings: Codable {
     // Focus Manager
     var enableFocusManagement: Bool?
     var centerCursorOnFocusChange: Bool?
-    var focusNextWorkspaceApp: AppHotKey?
-    var focusPreviousWorkspaceApp: AppHotKey?
-    var focusNextWorkspaceWindow: AppHotKey?
-    var focusPreviousWorkspaceWindow: AppHotKey?
+    var focusNextAppGroupApp: AppHotKey?
+    var focusPreviousAppGroupApp: AppHotKey?
+    var focusNextAppGroupWindow: AppHotKey?
+    var focusPreviousAppGroupWindow: AppHotKey?
 
-    // Workspaces
+    // App Groups
     var centerCursorOnAppActivation: Bool?
-    var loopWorkspaces: Bool?
-    var switchToRecentWorkspace: AppHotKey?
-    var switchToPreviousWorkspace: AppHotKey?
-    var switchToNextWorkspace: AppHotKey?
+    var loopAppGroups: Bool?
+    var switchToRecentAppGroup: AppHotKey?
+    var switchToPreviousAppGroup: AppHotKey?
+    var switchToNextAppGroup: AppHotKey?
 }

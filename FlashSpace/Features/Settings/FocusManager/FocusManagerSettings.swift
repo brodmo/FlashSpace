@@ -12,10 +12,10 @@ final class FocusManagerSettings: ObservableObject {
     @Published var enableFocusManagement = false
     @Published var centerCursorOnFocusChange = false
 
-    @Published var focusNextWorkspaceApp: AppHotKey?
-    @Published var focusPreviousWorkspaceApp: AppHotKey?
-    @Published var focusNextWorkspaceWindow: AppHotKey?
-    @Published var focusPreviousWorkspaceWindow: AppHotKey?
+    @Published var focusNextAppGroupApp: AppHotKey?
+    @Published var focusPreviousAppGroupApp: AppHotKey?
+    @Published var focusNextAppGroupWindow: AppHotKey?
+    @Published var focusPreviousAppGroupWindow: AppHotKey?
 
     private var observer: AnyCancellable?
     private let updateSubject = PassthroughSubject<(), Never>()
@@ -26,10 +26,10 @@ final class FocusManagerSettings: ObservableObject {
         observer = Publishers.MergeMany(
             $enableFocusManagement.settingsPublisher(),
             $centerCursorOnFocusChange.settingsPublisher(),
-            $focusNextWorkspaceApp.settingsPublisher(),
-            $focusPreviousWorkspaceApp.settingsPublisher(),
-            $focusNextWorkspaceWindow.settingsPublisher(),
-            $focusPreviousWorkspaceWindow.settingsPublisher()
+            $focusNextAppGroupApp.settingsPublisher(),
+            $focusPreviousAppGroupApp.settingsPublisher(),
+            $focusNextAppGroupWindow.settingsPublisher(),
+            $focusPreviousAppGroupWindow.settingsPublisher()
         )
         .receive(on: DispatchQueue.main)
         .sink { [weak self] in self?.updateSubject.send() }
@@ -45,19 +45,19 @@ extension FocusManagerSettings: SettingsProtocol {
         observer = nil
         enableFocusManagement = appSettings.enableFocusManagement ?? false
         centerCursorOnFocusChange = appSettings.centerCursorOnFocusChange ?? false
-        focusNextWorkspaceApp = appSettings.focusNextWorkspaceApp
-        focusPreviousWorkspaceApp = appSettings.focusPreviousWorkspaceApp
-        focusNextWorkspaceWindow = appSettings.focusNextWorkspaceWindow
-        focusPreviousWorkspaceWindow = appSettings.focusPreviousWorkspaceWindow
+        focusNextAppGroupApp = appSettings.focusNextAppGroupApp
+        focusPreviousAppGroupApp = appSettings.focusPreviousAppGroupApp
+        focusNextAppGroupWindow = appSettings.focusNextAppGroupWindow
+        focusPreviousAppGroupWindow = appSettings.focusPreviousAppGroupWindow
         observe()
     }
 
     func update(_ appSettings: inout AppSettings) {
         appSettings.enableFocusManagement = enableFocusManagement
         appSettings.centerCursorOnFocusChange = centerCursorOnFocusChange
-        appSettings.focusNextWorkspaceApp = focusNextWorkspaceApp
-        appSettings.focusPreviousWorkspaceApp = focusPreviousWorkspaceApp
-        appSettings.focusNextWorkspaceWindow = focusNextWorkspaceWindow
-        appSettings.focusPreviousWorkspaceWindow = focusPreviousWorkspaceWindow
+        appSettings.focusNextAppGroupApp = focusNextAppGroupApp
+        appSettings.focusPreviousAppGroupApp = focusPreviousAppGroupApp
+        appSettings.focusNextAppGroupWindow = focusNextAppGroupWindow
+        appSettings.focusPreviousAppGroupWindow = focusPreviousAppGroupWindow
     }
 }

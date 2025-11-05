@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AppCell: View {
-    let workspaceId: WorkspaceID
+    let appGroupId: AppGroupID
     let app: MacApp
 
     var body: some View {
@@ -22,6 +22,6 @@ struct AppCell: View {
             Text(app.name)
                 .foregroundColor(app.bundleIdentifier.isEmpty ? .errorRed : .primary)
         }
-        .draggable(MacAppWithWorkspace(app: app, workspaceId: workspaceId))
+        .draggable(MacAppWithAppGroup(app: app, appGroupId: appGroupId))
     }
 }

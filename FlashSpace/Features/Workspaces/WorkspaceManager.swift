@@ -1,5 +1,5 @@
 //
-//  WorkspaceManager.swift
+//  AppGroupManager.swift
 //
 //  Created by Wojciech Kulik on 19/01/2025.
 //  Copyright © 2025 Wojciech Kulik. All rights reserved.
@@ -8,58 +8,58 @@
 import AppKit
 import Combine
 
-final class WorkspaceManager: ObservableObject {
-    // Minimal state for cycling and recent workspace switching
-    private var lastActivatedWorkspace: Workspace?
-    private var previousActivatedWorkspace: Workspace?
+final class AppGroupManager: ObservableObject {
+    // Minimal state for cycling and recent appGroup switching
+    private var lastActivatedAppGroup: AppGroup?
+    private var previousActivatedAppGroup: AppGroup?
 
     private var cancellables = Set<AnyCancellable>()
 
-    private let workspaceRepository: WorkspaceRepository
-    private let workspaceSettings: WorkspaceSettings
+    private let appGroupRepository: AppGroupRepository
+    private let appGroupSettings: AppGroupSettings
 
     init(
-        workspaceRepository: WorkspaceRepository,
+        appGroupRepository: AppGroupRepository,
         settingsRepository: SettingsRepository
     ) {
-        self.workspaceRepository = workspaceRepository
-        self.workspaceSettings = settingsRepository.workspaceSettings
+        self.appGroupRepository = appGroupRepository
+        self.appGroupSettings = settingsRepository.appGroupSettings
 
         PermissionsManager.shared.askForAccessibilityPermissions()
     }
 
-    private func findAppToFocus(in workspace: Workspace) -> NSRunningApplication? {
+    private func findAppToFocus(in appGroup: AppGroup) -> NSRunningApplication? {
         let runningApps = NSWorkspace.shared.runningApplications
-            .filter { workspace.apps.containsApp($0) }
+            .filter { appGroup.apps.containsApp($0) }
 
-        // If workspace has a preferred app to focus, use that
-        if let preferredApp = workspace.appToFocus {
+        // If appGroup has a preferred app to focus, use that
+        if let preferredApp = appGroup.appToFocus {
             if let app = runningApps.find(preferredApp) {
                 return app
             }
         }
 
         // Otherwise just pick first running app from the group
-        let fallbackApp = runningApps.findFirstMatch(with: workspace.apps)
+        let fallbackApp = runningApps.findFirstMatch(with: appGroup.apps)
         let fallbackToFinder = NSWorkspace.shared.runningApplications.first(where: \.isFinder)
 
         return fallbackApp ?? fallbackToFinder
     }
 
     private func centerCursorIfNeeded(in frame: CGRect?) {
-        guard workspaceSettings.centerCursorOnAppActivation, let frame else { return }
+        guard appGroupSettings.centerCursorOnAppActivation, let frame else { return }
 
         CGWarpMouseCursorPosition(CGPoint(x: frame.midX, y: frame.midY))
     }
 
-    private func openAppsIfNeeded(in workspace: Workspace) {
-        guard workspace.openAppsOnActivation == true else { return }
+    private func openAppsIfNeeded(in appGroup: AppGroup) {
+        guard appGroup.openAppsOnActivation == true else { return }
 
         let runningBundleIds = NSWorkspace.shared.runningApplications
             .compactMap(\.bundleIdentifier)
             .asSet
 
-        workspace.apps
+        appGroup.apps
             .filter { !runningBundleIds.contains($0.bundleIdentifier) }
             .compactMap { NSWorkspace.shared.urlForApplication(withBundleIdentifier: $0.bundleIdentifier) }
             .forEach { appUrl in
@@ -75,71 +75,71 @@ final class WorkspaceManager: ObservableObject {
     }
 }
 
-// MARK: - Workspace Actions
-extension WorkspaceManager {
-    func activateWorkspace(_ workspace: Workspace, setFocus: Bool) {
+// MARK: - AppGroup Actions
+extension AppGroupManager {
+    func activateAppGroup(_ appGroup: AppGroup, setFocus: Bool) {
         Logger.log("")
         Logger.log("")
-        Logger.log("APP GROUP: \(workspace.name)")
+        Logger.log("APP GROUP: \(appGroup.name)")
         Logger.log("----")
 
-        // Track previous for recent workspace switching
-        if let last = lastActivatedWorkspace, last.id != workspace.id {
-            previousActivatedWorkspace = last
+        // Track previous for recent appGroup switching
+        if let last = lastActivatedAppGroup, last.id != appGroup.id {
+            previousActivatedAppGroup = last
         }
 
         // Remember for cycling
-        lastActivatedWorkspace = workspace
+        lastActivatedAppGroup = appGroup
 
         // Optionally launch apps in the group
-        openAppsIfNeeded(in: workspace)
+        openAppsIfNeeded(in: appGroup)
 
         // Simply focus an app in the group if requested
         if setFocus {
-            let toFocus = findAppToFocus(in: workspace)
+            let toFocus = findAppToFocus(in: appGroup)
             Logger.log("FOCUS: \(toFocus?.localizedName ?? "none")")
             toFocus?.activate()
             centerCursorIfNeeded(in: toFocus?.frame)
         }
     }
 
-    func activateWorkspace(next: Bool, loop: Bool) {
-        let workspaces = workspaceRepository.workspaces
+    func activateAppGroup(next: Bool, loop: Bool) {
+        let appGroups = appGroupRepository.appGroups
 
-        guard let currentWorkspace = lastActivatedWorkspace ?? workspaces.first else {
-            // No workspace activated yet, activate first one
-            if let first = workspaces.first {
-                activateWorkspace(first, setFocus: true)
+        guard let currentAppGroup = lastActivatedAppGroup ?? appGroups.first else {
+            // No appGroup activated yet, activate first one
+            if let first = appGroups.first {
+                activateAppGroup(first, setFocus: true)
             }
             return
         }
 
-        var workspacesToLoop = next ? workspaces : workspaces.reversed()
+        var appGroupsToLoop = next ? appGroups : appGroups.reversed()
 
-        let nextWorkspaces = workspacesToLoop
-            .drop(while: { $0.id != currentWorkspace.id })
+        let nextAppGroups = appGroupsToLoop
+            .drop(while: { $0.id != currentAppGroup.id })
             .dropFirst()
 
-        let selectedWorkspace = nextWorkspaces.first ?? (loop ? workspacesToLoop.first : nil)
+        let selectedAppGroup = nextAppGroups.first ?? (loop ? appGroupsToLoop.first : nil)
 
-        guard let selectedWorkspace, selectedWorkspace.id != currentWorkspace.id else { return }
+        guard let selectedAppGroup, selectedAppGroup.id != currentAppGroup.id else { return }
 
-        activateWorkspace(selectedWorkspace, setFocus: true)
+        activateAppGroup(selectedAppGroup, setFocus: true)
     }
 
-    func activateRecentWorkspace() {
-        // Alt+Tab-like behavior for app groups: switch to previous workspace
-        guard let previous = previousActivatedWorkspace else { return }
-        guard let updatedWorkspace = workspaceRepository.findWorkspace(with: previous.id) else { return }
+    func activateRecentAppGroup() {
+        // Alt+Tab-like behavior for app groups: switch to previous appGroup
+        guard let previous = previousActivatedAppGroup else { return }
+        guard let updatedAppGroup = appGroupRepository.findAppGroup(with: previous.id) else { return }
 
-        activateWorkspace(updatedWorkspace, setFocus: true)
+        activateAppGroup(updatedAppGroup, setFocus: true)
     }
 
-    func activateWorkspaceIfActive(_ workspaceId: WorkspaceID) {
+    func activateAppGroupIfActive(_ appGroupId: AppGroupID) {
         // Simplified: just re-activate if it was the last one
-        guard lastActivatedWorkspace?.id == workspaceId else { return }
-        guard let updatedWorkspace = workspaceRepository.findWorkspace(with: workspaceId) else { return }
+        guard lastActivatedAppGroup?.id == appGroupId else { return }
+        guard let updatedAppGroup = appGroupRepository.findAppGroup(with: appGroupId) else { return }
 
-        activateWorkspace(updatedWorkspace, setFocus: false)
+        activateAppGroup(updatedAppGroup, setFocus: false)
     }
 }

@@ -14,54 +14,54 @@ struct MainView: View {
 
     var body: some View {
         HStack(spacing: 16.0) {
-            workspaces
+            appGroups
             assignedApps
-            WorkspaceConfigurationView(viewModel: viewModel)
+            AppGroupConfigurationView(viewModel: viewModel)
                 .frame(maxWidth: 230)
         }
         .padding()
         .fixedSize()
         .sheet(isPresented: $viewModel.isInputDialogPresented) {
             InputDialog(
-                title: "Enter workspace name:",
+                title: "Enter appGroup name:",
                 userInput: $viewModel.userInput,
                 isPresented: $viewModel.isInputDialogPresented
             )
         }
         .sheet(isPresented: $viewModel.isSymbolPickerPresented) {
-            SymbolPicker(symbol: $viewModel.workspaceSymbolIconName)
+            SymbolPicker(symbol: $viewModel.appGroupSymbolIconName)
         }
     }
 
-    private var workspaces: some View {
+    private var appGroups: some View {
         VStack(alignment: .leading) {
-            Text("Workspaces:")
+            Text("App Groups:")
 
             List(
-                $viewModel.workspaces,
+                $viewModel.appGroups,
                 id: \.self,
                 editActions: .move,
-                selection: $viewModel.selectedWorkspaces
+                selection: $viewModel.selectedAppGroups
             ) { binding in
-                WorkspaceCell(
+                AppGroupCell(
                     selectedApps: $viewModel.selectedApps,
-                    workspace: binding.wrappedValue
+                    appGroup: binding.wrappedValue
                 )
             }
             .frame(width: 200, height: 350)
             .tahoeBorder()
 
             HStack {
-                Button(action: viewModel.addWorkspace) {
+                Button(action: viewModel.addAppGroup) {
                     Image(systemName: "plus")
                         .frame(height: 16)
                 }
 
-                Button(action: viewModel.deleteSelectedWorkspaces) {
+                Button(action: viewModel.deleteSelectedAppGroups) {
                     Image(systemName: "trash")
                         .frame(height: 16)
                 }
-                .disabled(viewModel.selectedWorkspaces.isEmpty)
+                .disabled(viewModel.selectedAppGroups.isEmpty)
 
                 Spacer()
             }
@@ -73,12 +73,12 @@ struct MainView: View {
             Text("Assigned Apps:")
 
             List(
-                viewModel.workspaceApps ?? [],
+                viewModel.appGroupApps ?? [],
                 id: \.self,
                 selection: $viewModel.selectedApps
             ) { app in
                 AppCell(
-                    workspaceId: viewModel.selectedWorkspace?.id ?? UUID(),
+                    appGroupId: viewModel.selectedAppGroup?.id ?? UUID(),
                     app: app
                 )
             }
@@ -89,7 +89,7 @@ struct MainView: View {
                 Button(action: viewModel.addApp) {
                     Image(systemName: "plus")
                         .frame(height: 16)
-                }.disabled(viewModel.selectedWorkspace == nil)
+                }.disabled(viewModel.selectedAppGroup == nil)
 
                 Button(action: viewModel.deleteSelectedApps) {
                     Image(systemName: "trash")

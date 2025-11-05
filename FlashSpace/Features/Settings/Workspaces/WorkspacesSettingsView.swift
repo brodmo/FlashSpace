@@ -1,5 +1,5 @@
 //
-//  WorkspacesSettingsView.swift
+//  AppGroupsSettingsView.swift
 //
 //  Created by Wojciech Kulik on 24/01/2025.
 //  Copyright © 2025 Wojciech Kulik. All rights reserved.
@@ -7,8 +7,8 @@
 
 import SwiftUI
 
-struct WorkspacesSettingsView: View {
-    @StateObject var settings = AppDependencies.shared.workspaceSettings
+struct AppGroupsSettingsView: View {
+    @StateObject var settings = AppDependencies.shared.appGroupSettings
 
     var body: some View {
         Form {
@@ -18,10 +18,10 @@ struct WorkspacesSettingsView: View {
             }
 
             Section("Group Cycling") {
-                hotkey("Recent Group", for: $settings.switchToRecentWorkspace)
-                hotkey("Previous Group", for: $settings.switchToPreviousWorkspace)
-                hotkey("Next Group", for: $settings.switchToNextWorkspace)
-                Toggle("Loop Groups", isOn: $settings.loopWorkspaces)
+                hotkey("Recent Group", for: $settings.switchToRecentAppGroup)
+                hotkey("Previous Group", for: $settings.switchToPreviousAppGroup)
+                hotkey("Next Group", for: $settings.switchToNextAppGroup)
+                Toggle("Loop Groups", isOn: $settings.loopAppGroups)
                     .help("Loop back to the first group when cycling past the last")
             }
         }

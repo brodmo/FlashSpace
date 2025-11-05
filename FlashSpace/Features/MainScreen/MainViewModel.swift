@@ -10,32 +10,32 @@ import Combine
 import SwiftUI
 
 final class MainViewModel: ObservableObject {
-    @Published var workspaces: [Workspace] = [] {
+    @Published var appGroups: [AppGroup] = [] {
         didSet {
-            guard workspaces.count == oldValue.count,
-                  workspaces.map(\.id) != oldValue.map(\.id) else { return }
+            guard appGroups.count == oldValue.count,
+                  appGroups.map(\.id) != oldValue.map(\.id) else { return }
 
-            workspaceRepository.reorderWorkspaces(newOrder: workspaces.map(\.id))
+            appGroupRepository.reorderAppGroups(newOrder: appGroups.map(\.id))
         }
     }
 
-    @Published var workspaceApps: [MacApp]?
+    @Published var appGroupApps: [MacApp]?
 
-    @Published var workspaceName = ""
-    @Published var workspaceShortcut: AppHotKey? {
-        didSet { saveWorkspace() }
+    @Published var appGroupName = ""
+    @Published var appGroupShortcut: AppHotKey? {
+        didSet { saveAppGroup() }
     }
 
-    @Published var workspaceAppToFocus: MacApp? = AppConstants.lastFocusedOption {
-        didSet { saveWorkspace() }
+    @Published var appGroupAppToFocus: MacApp? = AppConstants.lastFocusedOption {
+        didSet { saveAppGroup() }
     }
 
-    @Published var workspaceSymbolIconName: String? {
-        didSet { saveWorkspace() }
+    @Published var appGroupSymbolIconName: String? {
+        didSet { saveAppGroup() }
     }
 
     @Published var isOpenAppsOnActivationEnabled = false {
-        didSet { saveWorkspace() }
+        didSet { saveAppGroup() }
     }
 
     @Published var isSymbolPickerPresented = false
@@ -43,7 +43,7 @@ final class MainViewModel: ObservableObject {
     @Published var userInput = ""
 
     var focusAppOptions: [MacApp] {
-        [AppConstants.lastFocusedOption] + (workspaceApps ?? [])
+        [AppConstants.lastFocusedOption] + (appGroupApps ?? [])
     }
 
     var selectedApps: Set<MacApp> = [] {
@@ -55,18 +55,18 @@ final class MainViewModel: ObservableObject {
         }
     }
 
-    var selectedWorkspaces: Set<Workspace> = [] {
+    var selectedAppGroups: Set<AppGroup> = [] {
         didSet {
-            selectedWorkspace = selectedWorkspaces.count == 1
-                ? selectedWorkspaces.first
+            selectedAppGroup = selectedAppGroups.count == 1
+                ? selectedAppGroups.first
                 : nil
 
             // To avoid warnings
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { [self] in
-                if selectedWorkspaces.count == 1,
-                   selectedWorkspaces.first?.id != oldValue.first?.id {
+                if selectedAppGroups.count == 1,
+                   selectedAppGroups.first?.id != oldValue.first?.id {
                     selectedApps = []
-                } else if selectedWorkspaces.count != 1 {
+                } else if selectedAppGroups.count != 1 {
                     selectedApps = []
                 }
                 objectWillChange.send()
@@ -74,89 +74,89 @@ final class MainViewModel: ObservableObject {
         }
     }
 
-    private(set) var selectedWorkspace: Workspace? {
+    private(set) var selectedAppGroup: AppGroup? {
         didSet {
-            guard selectedWorkspace != oldValue else { return }
+            guard selectedAppGroup != oldValue else { return }
 
             // To avoid warnings
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-                self.updateSelectedWorkspace()
+                self.updateSelectedAppGroup()
             }
         }
     }
 
     private var cancellables: Set<AnyCancellable> = []
-    private var loadingWorkspace = false
+    private var loadingAppGroup = false
 
-    private let workspaceManager = AppDependencies.shared.workspaceManager
-    private let workspaceRepository = AppDependencies.shared.workspaceRepository
-    private let workspaceSettings = AppDependencies.shared.workspaceSettings
+    private let appGroupManager = AppDependencies.shared.appGroupManager
+    private let appGroupRepository = AppDependencies.shared.appGroupRepository
+    private let appGroupSettings = AppDependencies.shared.appGroupSettings
 
     init() {
-        self.workspaces = workspaceRepository.workspaces
+        self.appGroups = appGroupRepository.appGroups
         observe()
     }
 
     private func observe() {
         NotificationCenter.default
             .publisher(for: .appsListChanged)
-            .sink { [weak self] _ in self?.reloadWorkspaces() }
+            .sink { [weak self] _ in self?.reloadAppGroups() }
             .store(in: &cancellables)
 
         NotificationCenter.default
             .publisher(for: .profileChanged)
-            .sink { [weak self] _ in self?.reloadWorkspaces() }
+            .sink { [weak self] _ in self?.reloadAppGroups() }
             .store(in: &cancellables)
     }
 
-    private func updateSelectedWorkspace() {
-        loadingWorkspace = true
-        defer { loadingWorkspace = false }
+    private func updateSelectedAppGroup() {
+        loadingAppGroup = true
+        defer { loadingAppGroup = false }
 
-        workspaceName = selectedWorkspace?.name ?? ""
-        workspaceShortcut = selectedWorkspace?.activateShortcut
-        workspaceApps = selectedWorkspace?.apps
-        workspaceAppToFocus = selectedWorkspace?.appToFocus ?? AppConstants.lastFocusedOption
-        workspaceSymbolIconName = selectedWorkspace?.symbolIconName
-        isOpenAppsOnActivationEnabled = selectedWorkspace?.openAppsOnActivation ?? false
-        selectedWorkspace.flatMap { selectedWorkspaces = [$0] }
+        appGroupName = selectedAppGroup?.name ?? ""
+        appGroupShortcut = selectedAppGroup?.activateShortcut
+        appGroupApps = selectedAppGroup?.apps
+        appGroupAppToFocus = selectedAppGroup?.appToFocus ?? AppConstants.lastFocusedOption
+        appGroupSymbolIconName = selectedAppGroup?.symbolIconName
+        isOpenAppsOnActivationEnabled = selectedAppGroup?.openAppsOnActivation ?? false
+        selectedAppGroup.flatMap { selectedAppGroups = [$0] }
     }
 
-    private func reloadWorkspaces() {
-        workspaces = workspaceRepository.workspaces
-        if let selectedWorkspace, let workspace = workspaceRepository.findWorkspace(with: selectedWorkspace.id) {
-            selectedWorkspaces = [workspace]
+    private func reloadAppGroups() {
+        appGroups = appGroupRepository.appGroups
+        if let selectedAppGroup, let appGroup = appGroupRepository.findAppGroup(with: selectedAppGroup.id) {
+            selectedAppGroups = [workspace]
         } else {
-            selectedWorkspaces = []
+            selectedAppGroups = []
         }
         selectedApps = []
     }
 }
 
 extension MainViewModel {
-    func saveWorkspace() {
-        guard let selectedWorkspace, !loadingWorkspace else { return }
+    func saveAppGroup() {
+        guard let selectedAppGroup, !loadingAppGroup else { return }
 
-        if workspaceName.trimmingCharacters(in: .whitespaces).isEmpty {
-            workspaceName = "(empty)"
+        if appGroupName.trimmingCharacters(in: .whitespaces).isEmpty {
+            appGroupName = "(empty)"
         }
 
-        let updatedWorkspace = Workspace(
-            id: selectedWorkspace.id,
-            name: workspaceName,
-            activateShortcut: workspaceShortcut,
-            apps: selectedWorkspace.apps,
-            appToFocus: workspaceAppToFocus == AppConstants.lastFocusedOption ? nil : workspaceAppToFocus,
-            symbolIconName: workspaceSymbolIconName,
+        let updatedAppGroup = AppGroup(
+            id: selectedAppGroup.id,
+            name: appGroupName,
+            activateShortcut: appGroupShortcut,
+            apps: selectedAppGroup.apps,
+            appToFocus: appGroupAppToFocus == AppConstants.lastFocusedOption ? nil : appGroupAppToFocus,
+            symbolIconName: appGroupSymbolIconName,
             openAppsOnActivation: isOpenAppsOnActivationEnabled
         )
 
-        workspaceRepository.updateWorkspace(updatedWorkspace)
-        workspaces = workspaceRepository.workspaces
-        self.selectedWorkspace = workspaceRepository.findWorkspace(with: selectedWorkspace.id)
+        appGroupRepository.updateAppGroup(updatedAppGroup)
+        appGroups = appGroupRepository.appGroups
+        self.selectedAppGroup = appGroupRepository.findAppGroup(with: selectedAppGroup.id)
     }
 
-    func addWorkspace() {
+    func addAppGroup() {
         userInput = ""
         isInputDialogPresented = true
 
@@ -165,23 +165,23 @@ extension MainViewModel {
             .sink { [weak self] _ in
                 guard let self, !self.userInput.isEmpty else { return }
 
-                self.workspaceRepository.addWorkspace(name: self.userInput)
-                self.workspaces = self.workspaceRepository.workspaces
-                self.selectedWorkspace = self.workspaces.last
+                self.appGroupRepository.addAppGroup(name: self.userInput)
+                self.appGroups = self.appGroupRepository.appGroups
+                self.selectedAppGroup = self.appGroups.last
             }
             .store(in: &cancellables)
     }
 
-    func deleteSelectedWorkspaces() {
-        guard !selectedWorkspaces.isEmpty else { return }
+    func deleteSelectedAppGroups() {
+        guard !selectedAppGroups.isEmpty else { return }
 
-        workspaceRepository.deleteWorkspaces(ids: selectedWorkspaces.map(\.id).asSet)
-        workspaces = workspaceRepository.workspaces
-        selectedWorkspaces = []
+        appGroupRepository.deleteAppGroups(ids: selectedAppGroups.map(\.id).asSet)
+        appGroups = appGroupRepository.appGroups
+        selectedAppGroups = []
     }
 
     func addApp() {
-        guard let selectedWorkspace else { return }
+        guard let selectedAppGroup else { return }
 
         let fileChooser = FileChooser()
         let appUrl = fileChooser.runModalOpenPanel(
@@ -204,10 +204,10 @@ extension MainViewModel {
             return
         }
 
-        guard !selectedWorkspace.apps.containsApp(with: appBundleId) else { return }
+        guard !selectedAppGroup.apps.containsApp(with: appBundleId) else { return }
 
-        workspaceRepository.addApp(
-            to: selectedWorkspace.id,
+        appGroupRepository.addApp(
+            to: selectedAppGroup.id,
             app: .init(
                 name: appName,
                 bundleIdentifier: appBundleId,
@@ -215,35 +215,35 @@ extension MainViewModel {
             )
         )
 
-        workspaces = workspaceRepository.workspaces
-        self.selectedWorkspace = workspaceRepository.findWorkspace(with: selectedWorkspace.id)
+        appGroups = appGroupRepository.appGroups
+        self.selectedAppGroup = appGroupRepository.findAppGroup(with: selectedAppGroup.id)
 
-        workspaceManager.activateWorkspaceIfActive(selectedWorkspace.id)
+        appGroupManager.activateAppGroupIfActive(selectedAppGroup.id)
     }
 
     func deleteSelectedApps() {
-        guard let selectedWorkspace, !selectedApps.isEmpty else { return }
+        guard let selectedAppGroup, !selectedApps.isEmpty else { return }
 
         let selectedApps = Array(selectedApps)
 
         for app in selectedApps {
-            workspaceRepository.deleteApp(
-                from: selectedWorkspace.id,
+            appGroupRepository.deleteApp(
+                from: selectedAppGroup.id,
                 app: app,
                 notify: app == selectedApps.last
             )
         }
 
-        workspaces = workspaceRepository.workspaces
-        self.selectedWorkspace = workspaceRepository.findWorkspace(with: selectedWorkspace.id)
-        workspaceApps = self.selectedWorkspace?.apps
+        appGroups = appGroupRepository.appGroups
+        self.selectedAppGroup = appGroupRepository.findAppGroup(with: selectedAppGroup.id)
+        appGroupApps = self.selectedAppGroup?.apps
         self.selectedApps = []
 
-        workspaceManager.activateWorkspaceIfActive(selectedWorkspace.id)
+        appGroupManager.activateAppGroupIfActive(selectedAppGroup.id)
     }
 
-    func resetWorkspaceSymbolIcon() {
-        workspaceSymbolIconName = nil
-        saveWorkspace()
+    func resetAppGroupSymbolIcon() {
+        appGroupSymbolIconName = nil
+        saveAppGroup()
     }
 }

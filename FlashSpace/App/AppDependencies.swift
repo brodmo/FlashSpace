@@ -10,9 +10,9 @@ import ShortcutRecorder
 struct AppDependencies {
     static let shared = AppDependencies()
 
-    let workspaceRepository: WorkspaceRepository
-    let workspaceManager: WorkspaceManager
-    let workspaceHotKeys: WorkspaceHotKeys
+    let appGroupRepository: AppGroupRepository
+    let appGroupManager: AppGroupManager
+    let appGroupHotKeys: AppGroupHotKeys
 
     let hotKeysMonitor: HotKeysMonitorProtocol = GlobalShortcutMonitor.shared
     let hotKeysManager: HotKeysManager
@@ -22,7 +22,7 @@ struct AppDependencies {
     let settingsRepository: SettingsRepository
     let generalSettings = GeneralSettings()
     let focusManagerSettings = FocusManagerSettings()
-    let workspaceSettings = WorkspaceSettings()
+    let appGroupSettings = AppGroupSettings()
 
     let autostartService = AutostartService()
 
@@ -30,26 +30,26 @@ struct AppDependencies {
         self.settingsRepository = SettingsRepository(
             generalSettings: generalSettings,
             focusManagerSettings: focusManagerSettings,
-            workspaceSettings: workspaceSettings
+            appGroupSettings: appGroupSettings
         )
-        self.workspaceRepository = WorkspaceRepository()
-        self.workspaceManager = WorkspaceManager(
-            workspaceRepository: workspaceRepository,
+        self.appGroupRepository = AppGroupRepository()
+        self.appGroupManager = AppGroupManager(
+            appGroupRepository: appGroupRepository,
             settingsRepository: settingsRepository
         )
-        self.workspaceHotKeys = WorkspaceHotKeys(
-            workspaceManager: workspaceManager,
-            workspaceRepository: workspaceRepository,
+        self.appGroupHotKeys = AppGroupHotKeys(
+            appGroupManager: appGroupManager,
+            appGroupRepository: appGroupRepository,
             settingsRepository: settingsRepository
         )
         self.focusManager = FocusManager(
-            workspaceRepository: workspaceRepository,
-            workspaceManager: workspaceManager,
+            appGroupRepository: appGroupRepository,
+            appGroupManager: appGroupManager,
             focusManagerSettings: focusManagerSettings
         )
         self.hotKeysManager = HotKeysManager(
             hotKeysMonitor: GlobalShortcutMonitor.shared,
-            workspaceHotKeys: workspaceHotKeys,
+            appGroupHotKeys: appGroupHotKeys,
             focusManager: focusManager,
             settingsRepository: settingsRepository
         )

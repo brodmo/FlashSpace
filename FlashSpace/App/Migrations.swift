@@ -17,12 +17,12 @@ enum Migrations {
         if Migrations.appsMigrated {
             Logger.log("Migrated apps")
 
-            let workspacesJsonUrl = FileManager.default
+            let appGroupsJsonUrl = FileManager.default
                 .homeDirectoryForCurrentUser
                 .appendingPathComponent(".config/flashspace/workspaces.json")
             try? FileManager.default.moveItem(
-                at: workspacesJsonUrl,
-                to: workspacesJsonUrl.deletingLastPathComponent()
+                at: appGroupsJsonUrl,
+                to: appGroupsJsonUrl.deletingLastPathComponent()
                     .appendingPathComponent("workspaces.json.bak")
             )
 

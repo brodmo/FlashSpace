@@ -29,7 +29,7 @@ struct SettingsView: View {
                 Label("General", systemImage: "gearshape")
                     .tag("General")
                 Label("App Groups", systemImage: "square.stack.3d.up")
-                    .tag("Workspaces")
+                    .tag("AppGroups")
                 Label("Focus Manager", systemImage: "macwindow.on.rectangle")
                     .tag("Focus")
                 Label("Configuration File", systemImage: "doc.text")
@@ -57,8 +57,8 @@ struct SettingsView: View {
             GeneralSettingsView()
         case "Focus":
             FocusSettingsView()
-        case "Workspaces":
-            WorkspacesSettingsView()
+        case "AppGroups":
+            AppGroupsSettingsView()
         case "Configuration":
             ConfigurationFileSettingsView()
         case "Acknowledgements":

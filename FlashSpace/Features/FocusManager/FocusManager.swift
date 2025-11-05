@@ -16,17 +16,17 @@ final class FocusManager {
     var focusedApp: NSRunningApplication? { NSWorkspace.shared.frontmostApplication }
     var focusedAppFrame: CGRect? { focusedApp?.frame }
 
-    private let workspaceRepository: WorkspaceRepository
-    private let workspaceManager: WorkspaceManager
+    private let appGroupRepository: AppGroupRepository
+    private let appGroupManager: AppGroupManager
     private let settings: FocusManagerSettings
 
     init(
-        workspaceRepository: WorkspaceRepository,
-        workspaceManager: WorkspaceManager,
+        appGroupRepository: AppGroupRepository,
+        appGroupManager: AppGroupManager,
         focusManagerSettings: FocusManagerSettings
     ) {
-        self.workspaceRepository = workspaceRepository
-        self.workspaceManager = workspaceManager
+        self.appGroupRepository = appGroupRepository
+        self.appGroupManager = appGroupManager
         self.settings = focusManagerSettings
     }
 
@@ -34,26 +34,26 @@ final class FocusManager {
         guard settings.enableFocusManagement else { return [] }
 
         return [
-            settings.focusNextWorkspaceApp.flatMap { ($0, nextWorkspaceApp) },
-            settings.focusPreviousWorkspaceApp.flatMap { ($0, previousWorkspaceApp) },
-            settings.focusNextWorkspaceWindow.flatMap { ($0, nextWorkspaceWindow) },
-            settings.focusPreviousWorkspaceWindow.flatMap { ($0, previousWorkspaceWindow) }
+            settings.focusNextAppGroupApp.flatMap { ($0, nextAppGroupApp) },
+            settings.focusPreviousAppGroupApp.flatMap { ($0, previousAppGroupApp) },
+            settings.focusNextAppGroupWindow.flatMap { ($0, nextAppGroupWindow) },
+            settings.focusPreviousAppGroupWindow.flatMap { ($0, previousAppGroupWindow) }
         ].compactMap { $0 }
     }
 
-    func nextWorkspaceWindow() {
-        guard let focusedApp else { return nextWorkspaceApp() }
+    func nextAppGroupWindow() {
+        guard let focusedApp else { return nextAppGroupApp() }
         guard let (_, apps) = getFocusedAppIndex() else { return }
 
-        let runningWorkspaceApps = getRunningAppsWithSortedWindows(apps: apps)
-        let focusedAppWindows = runningWorkspaceApps
+        let runningAppGroupApps = getRunningAppsWithSortedWindows(apps: apps)
+        let focusedAppWindows = runningAppGroupApps
             .first { $0.bundleIdentifier == focusedApp.bundleIdentifier }?
             .windows ?? []
         let isLastWindowFocused = focusedAppWindows.last?.axWindow.isMain == true
 
         if isLastWindowFocused {
-            let nextApps = runningWorkspaceApps.drop(while: { $0.bundleIdentifier != focusedApp.bundleIdentifier }).dropFirst() +
-                runningWorkspaceApps.prefix(while: { $0.bundleIdentifier != focusedApp.bundleIdentifier })
+            let nextApps = runningAppGroupApps.drop(while: { $0.bundleIdentifier != focusedApp.bundleIdentifier }).dropFirst() +
+                runningAppGroupApps.prefix(while: { $0.bundleIdentifier != focusedApp.bundleIdentifier })
             let nextApp = nextApps.first ?? MacAppWithWindows(app: focusedApp)
 
             nextApp.app.activate()
@@ -72,19 +72,19 @@ final class FocusManager {
         }
     }
 
-    func previousWorkspaceWindow() {
-        guard let focusedApp else { return previousWorkspaceApp() }
+    func previousAppGroupWindow() {
+        guard let focusedApp else { return previousAppGroupApp() }
         guard let (_, apps) = getFocusedAppIndex() else { return }
 
-        let runningWorkspaceApps = getRunningAppsWithSortedWindows(apps: apps)
-        let focusedAppWindows = runningWorkspaceApps
+        let runningAppGroupApps = getRunningAppsWithSortedWindows(apps: apps)
+        let focusedAppWindows = runningAppGroupApps
             .first { $0.bundleIdentifier == focusedApp.bundleIdentifier }?
             .windows ?? []
         let isFirstWindowFocused = focusedAppWindows.first?.axWindow.isMain == true
 
         if isFirstWindowFocused {
-            let prevApps = runningWorkspaceApps.drop(while: { $0.bundleIdentifier != focusedApp.bundleIdentifier }).dropFirst() +
-                runningWorkspaceApps.prefix(while: { $0.bundleIdentifier != focusedApp.bundleIdentifier })
+            let prevApps = runningAppGroupApps.drop(while: { $0.bundleIdentifier != focusedApp.bundleIdentifier }).dropFirst() +
+                runningAppGroupApps.prefix(while: { $0.bundleIdentifier != focusedApp.bundleIdentifier })
             let prevApp = prevApps.last ?? MacAppWithWindows(app: focusedApp)
 
             prevApp.app.activate()
@@ -102,7 +102,7 @@ final class FocusManager {
         }
     }
 
-    func nextWorkspaceApp() {
+    func nextAppGroupApp() {
         guard let (index, apps) = getFocusedAppIndex() else { return }
 
         let appsQueue = apps.dropFirst(index + 1) + apps.prefix(index)
@@ -117,7 +117,7 @@ final class FocusManager {
             .activate()
     }
 
-    func previousWorkspaceApp() {
+    func previousAppGroupApp() {
         guard let (index, apps) = getFocusedAppIndex() else { return }
 
         let runningApps = NSWorkspace.shared.runningApplications
@@ -137,12 +137,12 @@ final class FocusManager {
     private func getFocusedAppIndex() -> (Int, [MacApp])? {
         guard let focusedApp else { return nil }
 
-        // Find workspace containing the focused app (stateless approach)
-        let workspace = workspaceRepository.workspaces.first { $0.apps.containsApp(focusedApp) }
+        // Find appGroup containing the focused app (stateless approach)
+        let appGroup = appGroupRepository.appGroups.first { $0.apps.containsApp(focusedApp) }
 
-        guard let workspace else { return nil }
+        guard let appGroup else { return nil }
 
-        let apps = workspace.apps
+        let apps = appGroup.apps
 
         let index = apps.firstIndex(of: focusedApp) ?? 0
 

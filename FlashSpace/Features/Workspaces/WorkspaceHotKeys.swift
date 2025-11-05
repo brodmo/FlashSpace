@@ -1,5 +1,5 @@
 //
-//  WorkspaceHotKeys.swift
+//  AppGroupHotKeys.swift
 //
 //  Created by Wojciech Kulik on 08/02/2025.
 //  Copyright © 2025 Wojciech Kulik. All rights reserved.
@@ -7,79 +7,79 @@
 
 import AppKit
 
-final class WorkspaceHotKeys {
-    private let workspaceManager: WorkspaceManager
-    private let workspaceRepository: WorkspaceRepository
-    private let workspaceSettings: WorkspaceSettings
+final class AppGroupHotKeys {
+    private let appGroupManager: AppGroupManager
+    private let appGroupRepository: AppGroupRepository
+    private let appGroupSettings: AppGroupSettings
 
     init(
-        workspaceManager: WorkspaceManager,
-        workspaceRepository: WorkspaceRepository,
+        appGroupManager: AppGroupManager,
+        appGroupRepository: AppGroupRepository,
         settingsRepository: SettingsRepository
     ) {
-        self.workspaceManager = workspaceManager
-        self.workspaceRepository = workspaceRepository
-        self.workspaceSettings = settingsRepository.workspaceSettings
+        self.appGroupManager = appGroupManager
+        self.appGroupRepository = appGroupRepository
+        self.appGroupSettings = settingsRepository.appGroupSettings
     }
 
     func getHotKeys() -> [(AppHotKey, () -> ())] {
         let hotKeys = [
-            getRecentWorkspaceHotKey(),
-            getCycleWorkspacesHotKey(next: false),
-            getCycleWorkspacesHotKey(next: true)
+            getRecentAppGroupHotKey(),
+            getCycleAppGroupsHotKey(next: false),
+            getCycleAppGroupsHotKey(next: true)
         ] +
-            workspaceRepository.workspaces
+            appGroupRepository.appGroups
             .compactMap { getActivateHotKey(for: $0) }
 
         return hotKeys.compactMap(\.self)
     }
 
-    private func getActivateHotKey(for workspace: Workspace) -> (AppHotKey, () -> ())? {
-        guard let shortcut = workspace.activateShortcut else { return nil }
+    private func getActivateHotKey(for appGroup: AppGroup) -> (AppHotKey, () -> ())? {
+        guard let shortcut = appGroup.activateShortcut else { return nil }
 
         let action = { [weak self] in
-            guard let self, let updatedWorkspace = workspaceRepository.findWorkspace(with: workspace.id) else { return }
+            guard let self, let updatedAppGroup = appGroupRepository.findAppGroup(with: appGroup.id) else { return }
 
             // Show toast if there are no running apps and we won't auto-launch them
-            if !updatedWorkspace.hasRunningApps,
-               workspace.apps.isEmpty || updatedWorkspace.openAppsOnActivation != true {
+            if !updatedAppGroup.hasRunningApps,
+               appGroup.apps.isEmpty || updatedAppGroup.openAppsOnActivation != true {
                 Toast.showWith(
                     icon: "square.stack.3d.up",
-                    message: "\(workspace.name) - No Running Apps To Show",
+                    message: "\(appGroup.name) - No Running Apps To Show",
                     textColor: .gray
                 )
                 return
             }
 
-            workspaceManager.activateWorkspace(updatedWorkspace, setFocus: true)
+            appGroupManager.activateAppGroup(updatedAppGroup, setFocus: true)
         }
 
         return (shortcut, action)
     }
 
-    private func getCycleWorkspacesHotKey(next: Bool) -> (AppHotKey, () -> ())? {
+    private func getCycleAppGroupsHotKey(next: Bool) -> (AppHotKey, () -> ())? {
         guard let shortcut = next
-            ? workspaceSettings.switchToNextWorkspace
-            : workspaceSettings.switchToPreviousWorkspace
+            ? appGroupSettings.switchToNextAppGroup
+            : appGroupSettings.switchToPreviousAppGroup
         else { return nil }
 
         let action: () -> () = { [weak self] in
             guard let self else { return }
 
-            workspaceManager.activateWorkspace(
+            appGroupManager.activateAppGroup(
                 next: next,
-                loop: workspaceSettings.loopWorkspaces
+                loop: appGroupSettings.loopAppGroups
             )
         }
 
         return (shortcut, action)
     }
 
-    private func getRecentWorkspaceHotKey() -> (AppHotKey, () -> ())? {
-        guard let shortcut = workspaceSettings.switchToRecentWorkspace else { return nil }
+    private func getRecentAppGroupHotKey() -> (AppHotKey, () -> ())? {
+        guard let shortcut = appGroupSettings.switchToRecentAppGroup else { return nil }
 
         let action: () -> () = { [weak self] in
-            self?.workspaceManager.activateRecentWorkspace()
+            self?.appGroupManager.activateRecentAppGroup()
         }
 
         return (shortcut, action)

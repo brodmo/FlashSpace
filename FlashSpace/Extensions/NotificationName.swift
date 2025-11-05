@@ -11,7 +11,7 @@ extension Notification.Name {
     static let appsListChanged = Notification.Name("appsListChanged")
     static let openMainWindow = Notification.Name("openMainWindow")
     static let profileChanged = Notification.Name("profileChanged")
-    static let workspaceTransitionFinished = Notification.Name("workspaceTransitionFinished")
+    static let appGroupTransitionFinished = Notification.Name("workspaceTransitionFinished")
     static let spaceControlArrowDown = Notification.Name("spaceControlArrowDown")
     static let pipFocusChanged = Notification.Name("pipFocusChanged")
 }

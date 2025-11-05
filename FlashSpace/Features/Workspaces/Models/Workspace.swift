@@ -1,5 +1,5 @@
 //
-//  Workspace.swift
+//  AppGroup.swift
 //
 //  Created by Wojciech Kulik on 19/01/2025.
 //  Copyright © 2025 Wojciech Kulik. All rights reserved.
@@ -8,9 +8,9 @@
 import AppKit
 import Foundation
 
-typealias WorkspaceID = UUID
+typealias AppGroupID = UUID
 
-struct Workspace: Identifiable, Codable, Hashable {
+struct AppGroup: Identifiable, Codable, Hashable {
     enum CodingKeys: String, CodingKey {
         case id
         case name
@@ -21,7 +21,7 @@ struct Workspace: Identifiable, Codable, Hashable {
         case openAppsOnActivation
     }
 
-    var id: WorkspaceID
+    var id: AppGroupID
     var name: String
     var activateShortcut: AppHotKey?
     var apps: [MacApp]
@@ -30,8 +30,8 @@ struct Workspace: Identifiable, Codable, Hashable {
     var openAppsOnActivation: Bool?
 }
 
-extension Workspace {
-    /// Check if any apps from this workspace are currently running
+extension AppGroup {
+    /// Check if any apps from this appGroup are currently running
     var hasRunningApps: Bool {
         let runningBundleIds = NSWorkspace.shared.runningRegularApps
             .compactMap(\.bundleIdentifier)
@@ -41,8 +41,8 @@ extension Workspace {
     }
 }
 
-extension [Workspace] {
-    func skipWithoutRunningApps() -> [Workspace] {
+extension [AppGroup] {
+    func skipWithoutRunningApps() -> [AppGroup] {
         let runningBundleIds = NSWorkspace.shared.runningRegularApps
             .compactMap(\.bundleIdentifier)
             .asSet

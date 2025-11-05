@@ -11,12 +11,12 @@ import Foundation
 final class SettingsRepository: ObservableObject {
     private(set) var generalSettings: GeneralSettings
     private(set) var focusManagerSettings: FocusManagerSettings
-    private(set) var workspaceSettings: WorkspaceSettings
+    private(set) var appGroupSettings: AppGroupSettings
 
     private lazy var allSettings: [SettingsProtocol] = [
         generalSettings,
         focusManagerSettings,
-        workspaceSettings
+        appGroupSettings
     ]
 
     private var currentSettings = AppSettings()
@@ -26,11 +26,11 @@ final class SettingsRepository: ObservableObject {
     init(
         generalSettings: GeneralSettings,
         focusManagerSettings: FocusManagerSettings,
-        workspaceSettings: WorkspaceSettings
+        appGroupSettings: AppGroupSettings
     ) {
         self.generalSettings = generalSettings
         self.focusManagerSettings = focusManagerSettings
-        self.workspaceSettings = workspaceSettings
+        self.appGroupSettings = appGroupSettings
 
         loadFromDisk()
 

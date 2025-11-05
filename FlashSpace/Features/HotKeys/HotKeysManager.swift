@@ -15,18 +15,18 @@ final class HotKeysManager {
     private var cancellables = Set<AnyCancellable>()
 
     private let hotKeysMonitor: HotKeysMonitorProtocol
-    private let workspaceHotKeys: WorkspaceHotKeys
+    private let appGroupHotKeys: AppGroupHotKeys
     private let focusManager: FocusManager
     private let settingsRepository: SettingsRepository
 
     init(
         hotKeysMonitor: HotKeysMonitorProtocol,
-        workspaceHotKeys: WorkspaceHotKeys,
+        appGroupHotKeys: AppGroupHotKeys,
         focusManager: FocusManager,
         settingsRepository: SettingsRepository
     ) {
         self.hotKeysMonitor = hotKeysMonitor
-        self.workspaceHotKeys = workspaceHotKeys
+        self.appGroupHotKeys = appGroupHotKeys
         self.focusManager = focusManager
         self.settingsRepository = settingsRepository
 
@@ -48,15 +48,15 @@ final class HotKeysManager {
             )))
         }
 
-        // Workspaces
-        for (shortcut, action) in workspaceHotKeys.getHotKeys().toShortcutPairs() {
+        // App Groups
+        for (shortcut, action) in appGroupHotKeys.getHotKeys().toShortcutPairs() {
             let action = ShortcutAction(shortcut: shortcut) { _ in
                 action()
                 return true
             }
 
             hotKeysMonitor.addAction(action, forKeyEvent: .down)
-            addShortcut("Workspace", shortcut)
+            addShortcut("AppGroup", shortcut)
         }
 
         // Focus Manager
