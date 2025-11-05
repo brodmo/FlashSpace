@@ -13,6 +13,9 @@ final class AppGroupManager: ObservableObject {
     private var lastActivatedAppGroup: AppGroup?
     private var previousActivatedAppGroup: AppGroup?
 
+    // Track recently activated apps to find most recent when activating a group
+    private var recentlyActivatedApps: [String: Date] = [:] // bundleIdentifier -> timestamp
+
     private var cancellables = Set<AnyCancellable>()
 
     private let appGroupRepository: AppGroupRepository
@@ -25,7 +28,24 @@ final class AppGroupManager: ObservableObject {
         self.appGroupRepository = appGroupRepository
         self.appGroupSettings = settingsRepository.appGroupSettings
 
-        PermissionsManager.shared.askForAccessibilityPermissions()
+        // Track app activations to find most recently used app in a group
+        NSWorkspace.shared.notificationCenter.addObserver(
+            self,
+            selector: #selector(handleAppActivation),
+            name: NSWorkspace.didActivateApplicationNotification,
+            object: nil
+        )
+    }
+
+    deinit {
+        NSWorkspace.shared.notificationCenter.removeObserver(self)
+    }
+
+    @objc private func handleAppActivation(_ notification: Notification) {
+        guard let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication,
+              let bundleId = app.bundleIdentifier else { return }
+
+        recentlyActivatedApps[bundleId] = Date()
     }
 
     private func findAppToFocus(in appGroup: AppGroup) -> NSRunningApplication? {
@@ -39,8 +59,13 @@ final class AppGroupManager: ObservableObject {
             }
         }
 
-        // Otherwise just pick first running app from the group
-        return runningApps.findFirstMatch(with: appGroup.apps)
+        // Otherwise find the most recently activated app from the group
+        return runningApps
+            .max(by: { app1, app2 in
+                let time1 = app1.bundleIdentifier.flatMap { recentlyActivatedApps[$0] } ?? .distantPast
+                let time2 = app2.bundleIdentifier.flatMap { recentlyActivatedApps[$0] } ?? .distantPast
+                return time1 < time2
+            })
     }
 
     private func openAppsIfNeeded(in appGroup: AppGroup) {
