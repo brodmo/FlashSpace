@@ -11,7 +11,7 @@ import TOMLKit
 enum ConfigSerializer {
     static let configDirectory = FileManager.default
         .homeDirectoryForCurrentUser
-        .appendingPathComponent(".config/flashspace")
+        .appendingPathComponent(".config/flashcut")
 
     static func serialize(filename: String, _ value: some Encodable) throws {
         let url = getUrl(for: filename)
