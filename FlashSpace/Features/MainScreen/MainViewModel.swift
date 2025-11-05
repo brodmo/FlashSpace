@@ -30,15 +30,10 @@ final class MainViewModel: ObservableObject {
         didSet { saveAppGroup() }
     }
 
-    @Published var appGroupSymbolIconName: String? {
-        didSet { saveAppGroup() }
-    }
-
     @Published var isOpenAppsOnActivationEnabled = false {
         didSet { saveAppGroup() }
     }
 
-    @Published var isSymbolPickerPresented = false
     @Published var isInputDialogPresented = false
     @Published var userInput = ""
 
@@ -117,7 +112,6 @@ final class MainViewModel: ObservableObject {
         appGroupShortcut = selectedAppGroup?.activateShortcut
         appGroupApps = selectedAppGroup?.apps
         appGroupAppToFocus = selectedAppGroup?.appToFocus ?? AppConstants.lastFocusedOption
-        appGroupSymbolIconName = selectedAppGroup?.symbolIconName
         isOpenAppsOnActivationEnabled = selectedAppGroup?.openAppsOnActivation ?? false
         selectedAppGroup.flatMap { selectedAppGroups = [$0] }
     }
@@ -147,7 +141,6 @@ extension MainViewModel {
             activateShortcut: appGroupShortcut,
             apps: selectedAppGroup.apps,
             appToFocus: appGroupAppToFocus == AppConstants.lastFocusedOption ? nil : appGroupAppToFocus,
-            symbolIconName: appGroupSymbolIconName,
             openAppsOnActivation: isOpenAppsOnActivationEnabled
         )
 
@@ -240,10 +233,5 @@ extension MainViewModel {
         self.selectedApps = []
 
         appGroupManager.activateAppGroupIfActive(selectedAppGroup.id)
-    }
-
-    func resetAppGroupSymbolIcon() {
-        appGroupSymbolIconName = nil
-        saveAppGroup()
     }
 }

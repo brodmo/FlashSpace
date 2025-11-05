@@ -43,17 +43,6 @@ struct AppGroupConfigurationView: View {
                 }
             }.padding(.bottom)
 
-            HStack {
-                Text("Menu Bar Icon:")
-                Button {
-                    viewModel.isSymbolPickerPresented = true
-                } label: {
-                    Image(systemName: viewModel.appGroupSymbolIconName ?? .defaultIconSymbol)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 16)
-                }
-            }.padding(.bottom)
-
             Text("Activate Shortcut:")
             HotKeyControl(shortcut: $viewModel.appGroupShortcut).padding(.bottom)
 

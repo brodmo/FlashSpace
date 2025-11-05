@@ -15,7 +15,6 @@ struct AppSettings: Codable {
     var focusPreviousAppGroupApp: AppHotKey?
 
     // App Groups
-    var centerCursorOnAppActivation: Bool?
     var loopAppGroups: Bool?
     var switchToRecentAppGroup: AppHotKey?
     var switchToPreviousAppGroup: AppHotKey?

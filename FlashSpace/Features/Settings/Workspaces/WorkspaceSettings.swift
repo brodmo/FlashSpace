@@ -9,8 +9,6 @@ import Combine
 import Foundation
 
 final class AppGroupSettings: ObservableObject {
-    @Published var centerCursorOnAppActivation = false
-
     @Published var loopAppGroups = true
     @Published var switchToRecentAppGroup: AppHotKey?
     @Published var switchToPreviousAppGroup: AppHotKey?
@@ -23,8 +21,6 @@ final class AppGroupSettings: ObservableObject {
 
     private func observe() {
         observer = Publishers.MergeMany(
-            $centerCursorOnAppActivation.settingsPublisher(),
-
             $loopAppGroups.settingsPublisher(),
             $switchToRecentAppGroup.settingsPublisher(),
             $switchToPreviousAppGroup.settingsPublisher(),
@@ -42,8 +38,6 @@ extension AppGroupSettings: SettingsProtocol {
 
     func load(from appSettings: AppSettings) {
         observer = nil
-        centerCursorOnAppActivation = appSettings.centerCursorOnAppActivation ?? false
-
         loopAppGroups = appSettings.loopAppGroups ?? true
         switchToRecentAppGroup = appSettings.switchToRecentAppGroup
         switchToPreviousAppGroup = appSettings.switchToPreviousAppGroup
@@ -52,8 +46,6 @@ extension AppGroupSettings: SettingsProtocol {
     }
 
     func update(_ appSettings: inout AppSettings) {
-        appSettings.centerCursorOnAppActivation = centerCursorOnAppActivation
-
         appSettings.loopAppGroups = loopAppGroups
         appSettings.switchToRecentAppGroup = switchToRecentAppGroup
         appSettings.switchToPreviousAppGroup = switchToPreviousAppGroup

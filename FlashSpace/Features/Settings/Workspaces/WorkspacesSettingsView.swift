@@ -12,11 +12,6 @@ struct AppGroupsSettingsView: View {
 
     var body: some View {
         Form {
-            Section("Behaviors") {
-                Toggle("Center Cursor In Focused App", isOn: $settings.centerCursorOnAppActivation)
-                    .help("Centers the cursor when activating an app group")
-            }
-
             Section("Group Cycling") {
                 hotkey("Recent Group", for: $settings.switchToRecentAppGroup)
                 hotkey("Previous Group", for: $settings.switchToPreviousAppGroup)

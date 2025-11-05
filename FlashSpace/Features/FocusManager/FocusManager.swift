@@ -14,7 +14,6 @@ final class FocusManager {
     }
 
     var focusedApp: NSRunningApplication? { NSWorkspace.shared.frontmostApplication }
-    var focusedAppFrame: CGRect? { focusedApp?.frame }
 
     private let appGroupRepository: AppGroupRepository
     private let appGroupManager: AppGroupManager

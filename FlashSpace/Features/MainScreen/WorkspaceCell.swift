@@ -19,12 +19,6 @@ struct AppGroupCell: View {
 
     var body: some View {
         HStack {
-            Image(systemName: appGroup.symbolIconName ?? .defaultIconSymbol)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 15, height: 15)
-                .foregroundStyle(.secondary)
-
             Text(appGroup.name)
                 .lineLimit(1)
                 .foregroundColor(

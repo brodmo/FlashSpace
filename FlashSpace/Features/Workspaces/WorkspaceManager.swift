@@ -46,12 +46,6 @@ final class AppGroupManager: ObservableObject {
         return fallbackApp ?? fallbackToFinder
     }
 
-    private func centerCursorIfNeeded(in frame: CGRect?) {
-        guard appGroupSettings.centerCursorOnAppActivation, let frame else { return }
-
-        CGWarpMouseCursorPosition(CGPoint(x: frame.midX, y: frame.midY))
-    }
-
     private func openAppsIfNeeded(in appGroup: AppGroup) {
         guard appGroup.openAppsOnActivation == true else { return }
 
@@ -99,7 +93,6 @@ extension AppGroupManager {
             let toFocus = findAppToFocus(in: appGroup)
             Logger.log("FOCUS: \(toFocus?.localizedName ?? "none")")
             toFocus?.activate()
-            centerCursorIfNeeded(in: toFocus?.frame)
         }
     }
 

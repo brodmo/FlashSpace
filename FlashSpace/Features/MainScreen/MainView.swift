@@ -7,7 +7,6 @@
 
 import AppKit
 import SwiftUI
-import SymbolPicker
 
 struct MainView: View {
     @StateObject var viewModel = MainViewModel()
@@ -27,9 +26,6 @@ struct MainView: View {
                 userInput: $viewModel.userInput,
                 isPresented: $viewModel.isInputDialogPresented
             )
-        }
-        .sheet(isPresented: $viewModel.isSymbolPickerPresented) {
-            SymbolPicker(symbol: $viewModel.appGroupSymbolIconName)
         }
     }
 
