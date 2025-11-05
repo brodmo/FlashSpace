@@ -11,8 +11,9 @@ import Combine
 typealias DisplayName = String
 
 final class WorkspaceManager: ObservableObject {
-    // Minimal state for cycling to work
+    // Minimal state for cycling and recent workspace switching
     private var lastActivatedWorkspace: Workspace?
+    private var previousActivatedWorkspace: Workspace?
 
     private var cancellables = Set<AnyCancellable>()
 
@@ -85,6 +86,11 @@ extension WorkspaceManager {
         Logger.log("APP GROUP: \(workspace.name)")
         Logger.log("----")
 
+        // Track previous for recent workspace switching
+        if let last = lastActivatedWorkspace, last.id != workspace.id {
+            previousActivatedWorkspace = last
+        }
+
         // Remember for cycling
         lastActivatedWorkspace = workspace
 
@@ -143,6 +149,14 @@ extension WorkspaceManager {
         guard let selectedWorkspace, selectedWorkspace.id != currentWorkspace.id else { return }
 
         activateWorkspace(selectedWorkspace, setFocus: true)
+    }
+
+    func activateRecentWorkspace() {
+        // Alt+Tab-like behavior for app groups: switch to previous workspace
+        guard let previous = previousActivatedWorkspace else { return }
+        guard let updatedWorkspace = workspaceRepository.findWorkspace(with: previous.id) else { return }
+
+        activateWorkspace(updatedWorkspace, setFocus: true)
     }
 
     func activateWorkspaceIfActive(_ workspaceId: WorkspaceID) {

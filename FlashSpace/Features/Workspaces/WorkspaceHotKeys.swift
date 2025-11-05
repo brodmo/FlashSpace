@@ -27,6 +27,7 @@ final class WorkspaceHotKeys {
             getAssignAppHotKey(for: nil),
             getUnassignAppHotKey(),
             getToggleAssignmentHotKey(),
+            getRecentWorkspaceHotKey(),
             getCycleWorkspacesHotKey(next: false),
             getCycleWorkspacesHotKey(next: true)
         ] +
@@ -104,6 +105,16 @@ final class WorkspaceHotKeys {
                 next: next,
                 loop: workspaceSettings.loopWorkspaces
             )
+        }
+
+        return (shortcut, action)
+    }
+
+    private func getRecentWorkspaceHotKey() -> (AppHotKey, () -> ())? {
+        guard let shortcut = workspaceSettings.switchToRecentWorkspace else { return nil }
+
+        let action: () -> () = { [weak self] in
+            self?.workspaceManager.activateRecentWorkspace()
         }
 
         return (shortcut, action)
