@@ -13,8 +13,6 @@ struct AppSettings: Codable {
     // Focus Manager
     var focusNextAppGroupApp: AppHotKey?
     var focusPreviousAppGroupApp: AppHotKey?
-    var focusNextAppGroupWindow: AppHotKey?
-    var focusPreviousAppGroupWindow: AppHotKey?
 
     // App Groups
     var centerCursorOnAppActivation: Bool?

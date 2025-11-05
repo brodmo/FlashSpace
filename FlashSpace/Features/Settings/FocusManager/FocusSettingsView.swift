@@ -16,11 +16,6 @@ struct FocusSettingsView: View {
                 hotkey("Focus Next App", for: $settings.focusNextAppGroupApp)
                 hotkey("Focus Previous App", for: $settings.focusPreviousAppGroupApp)
             }
-
-            Section("Window Cycling") {
-                hotkey("Focus Next Window", for: $settings.focusNextAppGroupWindow)
-                hotkey("Focus Previous Window", for: $settings.focusPreviousAppGroupWindow)
-            }
         }
         .formStyle(.grouped)
         .navigationTitle("Focus Manager")
