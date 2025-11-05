@@ -12,10 +12,6 @@ final class FocusManagerSettings: ObservableObject {
     @Published var enableFocusManagement = false
     @Published var centerCursorOnFocusChange = false
 
-    @Published var focusLeft: AppHotKey?
-    @Published var focusRight: AppHotKey?
-    @Published var focusUp: AppHotKey?
-    @Published var focusDown: AppHotKey?
     @Published var focusNextWorkspaceApp: AppHotKey?
     @Published var focusPreviousWorkspaceApp: AppHotKey?
     @Published var focusNextWorkspaceWindow: AppHotKey?
@@ -31,10 +27,6 @@ final class FocusManagerSettings: ObservableObject {
         observer = Publishers.MergeMany(
             $enableFocusManagement.settingsPublisher(),
             $centerCursorOnFocusChange.settingsPublisher(),
-            $focusLeft.settingsPublisher(),
-            $focusRight.settingsPublisher(),
-            $focusUp.settingsPublisher(),
-            $focusDown.settingsPublisher(),
             $focusNextWorkspaceApp.settingsPublisher(),
             $focusPreviousWorkspaceApp.settingsPublisher(),
             $focusNextWorkspaceWindow.settingsPublisher(),
@@ -55,10 +47,6 @@ extension FocusManagerSettings: SettingsProtocol {
         observer = nil
         enableFocusManagement = appSettings.enableFocusManagement ?? false
         centerCursorOnFocusChange = appSettings.centerCursorOnFocusChange ?? false
-        focusLeft = appSettings.focusLeft
-        focusRight = appSettings.focusRight
-        focusUp = appSettings.focusUp
-        focusDown = appSettings.focusDown
         focusNextWorkspaceApp = appSettings.focusNextWorkspaceApp
         focusPreviousWorkspaceApp = appSettings.focusPreviousWorkspaceApp
         focusNextWorkspaceWindow = appSettings.focusNextWorkspaceWindow
@@ -70,10 +58,6 @@ extension FocusManagerSettings: SettingsProtocol {
     func update(_ appSettings: inout AppSettings) {
         appSettings.enableFocusManagement = enableFocusManagement
         appSettings.centerCursorOnFocusChange = centerCursorOnFocusChange
-        appSettings.focusLeft = focusLeft
-        appSettings.focusRight = focusRight
-        appSettings.focusUp = focusUp
-        appSettings.focusDown = focusDown
         appSettings.focusNextWorkspaceApp = focusNextWorkspaceApp
         appSettings.focusPreviousWorkspaceApp = focusPreviousWorkspaceApp
         appSettings.focusNextWorkspaceWindow = focusNextWorkspaceWindow

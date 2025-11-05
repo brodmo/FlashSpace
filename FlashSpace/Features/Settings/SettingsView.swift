@@ -30,24 +30,12 @@ struct SettingsView: View {
                     .tag("General")
                 Label("Menu Bar", systemImage: "contextualmenu.and.cursorarrow")
                     .tag("MenuBar")
-                Label("Gestures", systemImage: "hand.draw")
-                    .tag("Gestures")
                 Label("Workspaces", systemImage: "square.stack.3d.up")
                     .tag("Workspaces")
-                Label("Floating Apps", systemImage: "pip")
-                    .tag("FloatingApps")
                 Label("Focus Manager", systemImage: "macwindow.on.rectangle")
                     .tag("Focus")
-                Label("Space Control", systemImage: "rectangle.split.2x2")
-                    .tag("SpaceControl")
-                Label("Profiles", systemImage: "person.2")
-                    .tag("Profiles")
-                Label("Integrations", systemImage: "link")
-                    .tag("Integrations")
                 Label("Configuration File", systemImage: "doc.text")
                     .tag("Configuration")
-                Label("CLI", systemImage: "apple.terminal")
-                    .tag("CLI")
                 Label("Acknowledgements", systemImage: "info.circle")
                     .tag("Acknowledgements")
                 Label("About", systemImage: "person")
@@ -58,7 +46,7 @@ struct SettingsView: View {
 
             Spacer()
 
-            Text("FlashSpace v\(AppConstants.version)")
+            Text("FlashCut v\(AppConstants.version)")
                 .foregroundStyle(.secondary)
                 .padding(.bottom)
         }
@@ -73,22 +61,10 @@ struct SettingsView: View {
             MenuBarSettingsView()
         case "Focus":
             FocusSettingsView()
-        case "Gestures":
-            GesturesSettingsView()
         case "Workspaces":
             WorkspacesSettingsView()
-        case "FloatingApps":
-            FloatingAppsSettingsView()
-        case "SpaceControl":
-            SpaceControlSettingsView()
-        case "Integrations":
-            IntegrationsSettingsView()
-        case "Profiles":
-            ProfilesSettingsView()
         case "Configuration":
             ConfigurationFileSettingsView()
-        case "CLI":
-            CLISettingsView()
         case "Acknowledgements":
             AcknowledgementsSettingsView()
         case "About":

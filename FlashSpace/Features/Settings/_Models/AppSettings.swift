@@ -20,28 +20,11 @@ struct AppSettings: Codable {
     // Focus Manager
     var enableFocusManagement: Bool?
     var centerCursorOnFocusChange: Bool?
-    var focusLeft: AppHotKey?
-    var focusRight: AppHotKey?
-    var focusUp: AppHotKey?
-    var focusDown: AppHotKey?
     var focusNextWorkspaceApp: AppHotKey?
     var focusPreviousWorkspaceApp: AppHotKey?
     var focusNextWorkspaceWindow: AppHotKey?
     var focusPreviousWorkspaceWindow: AppHotKey?
     var focusFrontmostWindow: Bool?
-
-    // Gestures
-    var enableSwipeGestures: Bool?
-    var swipeThreshold: Double?
-    var restartAppOnWakeUp: Bool?
-    var swipeLeft3FingerAction: GestureAction?
-    var swipeRight3FingerAction: GestureAction?
-    var swipeUp3FingerAction: GestureAction?
-    var swipeDown3FingerAction: GestureAction?
-    var swipeLeft4FingerAction: GestureAction?
-    var swipeRight4FingerAction: GestureAction?
-    var swipeUp4FingerAction: GestureAction?
-    var swipeDown4FingerAction: GestureAction?
 
     // Workspaces
     var displayMode: DisplayMode?
@@ -51,9 +34,6 @@ struct AppSettings: Codable {
     var skipEmptyWorkspacesOnSwitch: Bool?
     var keepUnassignedAppsOnSwitch: Bool?
     var restoreHiddenAppsOnSwitch: Bool?
-    var enableWorkspaceTransitions: Bool?
-    var workspaceTransitionDuration: Double?
-    var workspaceTransitionDimming: Double?
 
     var loopWorkspaces: Bool?
     var loopWorkspacesOnAllDisplays: Bool?
@@ -63,41 +43,7 @@ struct AppSettings: Codable {
     var switchToRecentWorkspace: AppHotKey?
     var assignFocusedApp: AppHotKey?
     var unassignFocusedApp: AppHotKey?
-    var showUnassignedApps: AppHotKey?
     var toggleFocusedAppAssignment: AppHotKey?
     var assignVisibleApps: AppHotKey?
-    var hideUnassignedApps: AppHotKey?
-    var hideAllApps: AppHotKey?
     var alternativeDisplays: String?
-    var enablePictureInPictureSupport: Bool?
-    var switchWorkspaceWhenPipCloses: Bool?
-    var pipApps: [PipApp]?
-    var pipScreenCornerOffset: Int?
-
-    // Floating apps
-    var floatingApps: [MacApp]?
-    var floatTheFocusedApp: AppHotKey?
-    var unfloatTheFocusedApp: AppHotKey?
-    var toggleTheFocusedAppFloating: AppHotKey?
-
-    // Space Control
-    var enableSpaceControl: Bool?
-    var showSpaceControl: AppHotKey?
-    var enableSpaceControlAnimations: Bool?
-    var enableSpaceControlTilesAnimations: Bool?
-    var spaceControlCurrentDisplayWorkspaces: Bool?
-    var spaceControlHideEmptyWorkspaces: Bool?
-    var spaceControlUpdateScreenshotsOnOpen: Bool?
-    var spaceControlNumberOfColumns: Int?
-
-    // Integrations
-    var enableIntegrations: Bool?
-    var runScriptOnLaunch: String?
-    var runScriptOnWorkspaceChange: String?
-    var runScriptAfterWorkspaceChange: String?
-    var runScriptOnProfileChange: String?
-
-    // Profiles
-    var switchToNextProfile: AppHotKey?
-    var switchToPreviousProfile: AppHotKey?
 }

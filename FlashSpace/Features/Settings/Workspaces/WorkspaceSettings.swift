@@ -17,17 +17,11 @@ final class WorkspaceSettings: ObservableObject {
     @Published var skipEmptyWorkspacesOnSwitch = false
     @Published var keepUnassignedAppsOnSwitch = false
     @Published var restoreHiddenAppsOnSwitch = true
-    @Published var enableWorkspaceTransitions = false
-    @Published var workspaceTransitionDuration = 0.3
-    @Published var workspaceTransitionDimming = 0.2
 
     @Published var assignFocusedApp: AppHotKey?
     @Published var unassignFocusedApp: AppHotKey?
     @Published var toggleFocusedAppAssignment: AppHotKey?
     @Published var assignVisibleApps: AppHotKey?
-    @Published var hideUnassignedApps: AppHotKey?
-    @Published var showUnassignedApps: AppHotKey?
-    @Published var hideAllApps: AppHotKey?
 
     @Published var loopWorkspaces = true
     @Published var loopWorkspacesOnAllDisplays = false
@@ -38,23 +32,10 @@ final class WorkspaceSettings: ObservableObject {
 
     @Published var alternativeDisplays = ""
 
-    @Published var enablePictureInPictureSupport = true
-    @Published var switchWorkspaceWhenPipCloses = true
-    @Published var pipScreenCornerOffset = 15
-    @Published var pipApps: [PipApp] = []
-
     private var observer: AnyCancellable?
     private let updateSubject = PassthroughSubject<(), Never>()
 
     init() { observe() }
-
-    func addPipApp(_ app: PipApp) {
-        pipApps.append(app)
-    }
-
-    func deletePipApp(_ app: PipApp) {
-        pipApps.removeAll { $0 == app }
-    }
 
     private func observe() {
         observer = Publishers.MergeMany(
@@ -66,17 +47,11 @@ final class WorkspaceSettings: ObservableObject {
             $skipEmptyWorkspacesOnSwitch.settingsPublisher(),
             $keepUnassignedAppsOnSwitch.settingsPublisher(),
             $restoreHiddenAppsOnSwitch.settingsPublisher(),
-            $enableWorkspaceTransitions.settingsPublisher(),
-            $workspaceTransitionDuration.settingsPublisher(debounce: true),
-            $workspaceTransitionDimming.settingsPublisher(debounce: true),
 
             $assignFocusedApp.settingsPublisher(),
             $unassignFocusedApp.settingsPublisher(),
             $toggleFocusedAppAssignment.settingsPublisher(),
             $assignVisibleApps.settingsPublisher(),
-            $hideUnassignedApps.settingsPublisher(),
-            $showUnassignedApps.settingsPublisher(),
-            $hideAllApps.settingsPublisher(),
 
             $loopWorkspaces.settingsPublisher(),
             $loopWorkspacesOnAllDisplays.settingsPublisher(),
@@ -85,11 +60,7 @@ final class WorkspaceSettings: ObservableObject {
             $switchToPreviousWorkspace.settingsPublisher(),
             $switchToNextWorkspace.settingsPublisher(),
 
-            $alternativeDisplays.settingsPublisher(debounce: true),
-            $enablePictureInPictureSupport.settingsPublisher(),
-            $switchWorkspaceWhenPipCloses.settingsPublisher(),
-            $pipApps.settingsPublisher(),
-            $pipScreenCornerOffset.settingsPublisher(debounce: true)
+            $alternativeDisplays.settingsPublisher(debounce: true)
         )
         .receive(on: DispatchQueue.main)
         .sink { [weak self] in self?.updateSubject.send() }
@@ -111,17 +82,11 @@ extension WorkspaceSettings: SettingsProtocol {
         skipEmptyWorkspacesOnSwitch = appSettings.skipEmptyWorkspacesOnSwitch ?? false
         keepUnassignedAppsOnSwitch = appSettings.keepUnassignedAppsOnSwitch ?? false
         restoreHiddenAppsOnSwitch = appSettings.restoreHiddenAppsOnSwitch ?? true
-        enableWorkspaceTransitions = appSettings.enableWorkspaceTransitions ?? false
-        workspaceTransitionDuration = min(appSettings.workspaceTransitionDuration ?? 0.3, 0.5)
-        workspaceTransitionDimming = min(appSettings.workspaceTransitionDimming ?? 0.2, 0.5)
 
         assignFocusedApp = appSettings.assignFocusedApp
         unassignFocusedApp = appSettings.unassignFocusedApp
         toggleFocusedAppAssignment = appSettings.toggleFocusedAppAssignment
         assignVisibleApps = appSettings.assignVisibleApps
-        hideUnassignedApps = appSettings.hideUnassignedApps
-        showUnassignedApps = appSettings.showUnassignedApps
-        hideAllApps = appSettings.hideAllApps
 
         loopWorkspaces = appSettings.loopWorkspaces ?? true
         loopWorkspacesOnAllDisplays = appSettings.loopWorkspacesOnAllDisplays ?? false
@@ -131,10 +96,6 @@ extension WorkspaceSettings: SettingsProtocol {
         switchToNextWorkspace = appSettings.switchToNextWorkspace
 
         alternativeDisplays = appSettings.alternativeDisplays ?? ""
-        enablePictureInPictureSupport = appSettings.enablePictureInPictureSupport ?? true
-        switchWorkspaceWhenPipCloses = appSettings.switchWorkspaceWhenPipCloses ?? true
-        pipApps = appSettings.pipApps ?? []
-        pipScreenCornerOffset = appSettings.pipScreenCornerOffset ?? 15
         observe()
     }
 
@@ -147,17 +108,11 @@ extension WorkspaceSettings: SettingsProtocol {
         appSettings.skipEmptyWorkspacesOnSwitch = skipEmptyWorkspacesOnSwitch
         appSettings.keepUnassignedAppsOnSwitch = keepUnassignedAppsOnSwitch
         appSettings.restoreHiddenAppsOnSwitch = restoreHiddenAppsOnSwitch
-        appSettings.enableWorkspaceTransitions = enableWorkspaceTransitions
-        appSettings.workspaceTransitionDuration = workspaceTransitionDuration
-        appSettings.workspaceTransitionDimming = workspaceTransitionDimming
 
         appSettings.assignFocusedApp = assignFocusedApp
         appSettings.unassignFocusedApp = unassignFocusedApp
         appSettings.toggleFocusedAppAssignment = toggleFocusedAppAssignment
         appSettings.assignVisibleApps = assignVisibleApps
-        appSettings.hideUnassignedApps = hideUnassignedApps
-        appSettings.showUnassignedApps = showUnassignedApps
-        appSettings.hideAllApps = hideAllApps
 
         appSettings.loopWorkspaces = loopWorkspaces
         appSettings.loopWorkspacesOnAllDisplays = loopWorkspacesOnAllDisplays
@@ -167,9 +122,5 @@ extension WorkspaceSettings: SettingsProtocol {
         appSettings.switchToNextWorkspace = switchToNextWorkspace
 
         appSettings.alternativeDisplays = alternativeDisplays
-        appSettings.enablePictureInPictureSupport = enablePictureInPictureSupport
-        appSettings.switchWorkspaceWhenPipCloses = switchWorkspaceWhenPipCloses
-        appSettings.pipApps = pipApps
-        appSettings.pipScreenCornerOffset = pipScreenCornerOffset
     }
 }

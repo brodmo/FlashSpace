@@ -26,14 +26,8 @@ extension [NSRunningApplication] {
     }
 
     func excludeFloatingAppsOnDifferentScreen() -> [NSRunningApplication] {
-        let activeWorkspace = AppDependencies.shared.workspaceManager.activeWorkspace[NSScreen.main?.localizedName ?? ""]
-        let floatingApps = AppDependencies.shared.floatingAppsSettings.floatingApps
-
-        guard let activeWorkspace else { return self }
-
-        return filter { app in
-            !floatingApps.containsApp(app) || app.isOnAnyDisplay(activeWorkspace.displays)
-        }
+        // No floating apps feature in FlashCut, return all apps
+        return self
     }
 
     func regularVisibleApps(onDisplays displays: Set<DisplayName>, excluding apps: [MacApp]) -> [NSRunningApplication] {

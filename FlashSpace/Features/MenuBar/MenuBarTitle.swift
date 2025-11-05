@@ -8,7 +8,6 @@
 enum MenuBarTitle {
     static let settings = AppDependencies.shared.menuBarSettings
     static let workspaceManager = AppDependencies.shared.workspaceManager
-    static let profilesRepository = AppDependencies.shared.profilesRepository
 
     static func get() -> String? {
         let template = settings.menuBarTitleTemplate.trimmingCharacters(in: .whitespaces)
@@ -20,7 +19,6 @@ enum MenuBarTitle {
             .replacingOccurrences(of: "$WORKSPACE_NUMBER", with: activeWorkspace.number ?? "")
             .replacingOccurrences(of: "$WORKSPACE", with: activeWorkspace.name)
             .replacingOccurrences(of: "$DISPLAY", with: getDisplayName())
-            .replacingOccurrences(of: "$PROFILE", with: profilesRepository.selectedProfile.name)
     }
 
     private static func getDisplayName() -> String {

@@ -31,7 +31,6 @@ struct MenuBarSettingsView: View {
                     $WORKSPACE will be replaced with the active workspace name
                     $WORKSPACE_NUMBER will be replaced with the active workspace number
                     $DISPLAY will be replaced with the corresponding display name
-                    $PROFILE will be replaced with the active profile name
                     """
                 )
                 .foregroundStyle(.secondary)

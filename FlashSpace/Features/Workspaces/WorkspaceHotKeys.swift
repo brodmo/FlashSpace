@@ -11,7 +11,6 @@ final class WorkspaceHotKeys {
     private let workspaceManager: WorkspaceManager
     private let workspaceRepository: WorkspaceRepository
     private let workspaceSettings: WorkspaceSettings
-    private let floatingAppsSettings: FloatingAppsSettings
 
     init(
         workspaceManager: WorkspaceManager,
@@ -21,7 +20,6 @@ final class WorkspaceHotKeys {
         self.workspaceManager = workspaceManager
         self.workspaceRepository = workspaceRepository
         self.workspaceSettings = settingsRepository.workspaceSettings
-        self.floatingAppsSettings = settingsRepository.floatingAppsSettings
     }
 
     func getHotKeys() -> [(AppHotKey, () -> ())] {
@@ -30,9 +28,6 @@ final class WorkspaceHotKeys {
             getAssignAppHotKey(for: nil),
             getUnassignAppHotKey(),
             getToggleAssignmentHotKey(),
-            getShowUnassignedAppsHotKey(),
-            getHideUnassignedAppsHotKey(),
-            getHideAllAppsHotKey(),
             getRecentWorkspaceHotKey(),
             getCycleWorkspacesHotKey(next: false),
             getCycleWorkspacesHotKey(next: true)
@@ -103,42 +98,6 @@ final class WorkspaceHotKeys {
         return (shortcut, action)
     }
 
-    private func getShowUnassignedAppsHotKey() -> (AppHotKey, () -> ())? {
-        guard let shortcut = workspaceSettings.showUnassignedApps else { return nil }
-
-        let action = { [weak self] in
-            guard let self else { return }
-
-            workspaceManager.showUnassignedApps()
-        }
-
-        return (shortcut, action)
-    }
-
-    private func getHideUnassignedAppsHotKey() -> (AppHotKey, () -> ())? {
-        guard let shortcut = workspaceSettings.hideUnassignedApps else { return nil }
-
-        let action = { [weak self] in
-            guard let self else { return }
-
-            workspaceManager.hideUnassignedApps()
-        }
-
-        return (shortcut, action)
-    }
-
-    private func getHideAllAppsHotKey() -> (AppHotKey, () -> ())? {
-        guard let shortcut = workspaceSettings.hideAllApps else { return nil }
-
-        let action = { [weak self] in
-            guard let self else { return }
-
-            workspaceManager.hideAll()
-        }
-
-        return (shortcut, action)
-    }
-
     private func getCycleWorkspacesHotKey(next: Bool) -> (AppHotKey, () -> ())? {
         guard let shortcut = next
             ? workspaceSettings.switchToNextWorkspace
@@ -176,7 +135,7 @@ extension WorkspaceHotKeys {
         guard activeApp.activationPolicy == .regular else {
             Alert.showOkAlert(
                 title: appName,
-                message: "This application is an agent (runs in background) and cannot be managed by FlashSpace."
+                message: "This application is an agent (runs in background) and cannot be managed by FlashCut."
             )
             return
         }
@@ -215,7 +174,7 @@ extension WorkspaceHotKeys {
         }
 
         let visibleApps = NSWorkspace.shared.runningApplications
-            .regularVisibleApps(onDisplays: workspace.displays, excluding: floatingAppsSettings.floatingApps)
+            .regularVisibleApps(onDisplays: workspace.displays, excluding: [])
 
         workspaceManager.assignApps(visibleApps.map(\.toMacApp), to: workspace)
 
@@ -239,7 +198,6 @@ extension WorkspaceHotKeys {
         }
 
         workspaceRepository.deleteAppFromAllWorkspaces(app: activeApp.toMacApp)
-        activeApp.hide()
         NotificationCenter.default.post(name: .appsListChanged, object: nil)
     }
 }
