@@ -24,26 +24,15 @@ struct AppSettings: Codable {
     var focusPreviousWorkspaceApp: AppHotKey?
     var focusNextWorkspaceWindow: AppHotKey?
     var focusPreviousWorkspaceWindow: AppHotKey?
-    var focusFrontmostWindow: Bool?
 
     // Workspaces
-    var displayMode: DisplayMode?
     var centerCursorOnWorkspaceChange: Bool?
-    var changeWorkspaceOnAppAssign: Bool?
-    var activeWorkspaceOnFocusChange: Bool?
-    var skipEmptyWorkspacesOnSwitch: Bool?
-    var keepUnassignedAppsOnSwitch: Bool?
-    var restoreHiddenAppsOnSwitch: Bool?
-
     var loopWorkspaces: Bool?
-    var loopWorkspacesOnAllDisplays: Bool?
-    var switchWorkspaceOnCursorScreen: Bool?
-    var switchToPreviousWorkspace: AppHotKey?
-    var switchToNextWorkspace: AppHotKey?
-    var switchToRecentWorkspace: AppHotKey?
     var assignFocusedApp: AppHotKey?
     var unassignFocusedApp: AppHotKey?
     var toggleFocusedAppAssignment: AppHotKey?
     var assignVisibleApps: AppHotKey?
-    var alternativeDisplays: String?
+    var switchToPreviousWorkspace: AppHotKey?
+    var switchToNextWorkspace: AppHotKey?
+    var switchToRecentWorkspace: AppHotKey?
 }

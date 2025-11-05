@@ -24,11 +24,9 @@ final class WorkspaceHotKeys {
 
     func getHotKeys() -> [(AppHotKey, () -> ())] {
         let hotKeys = [
-            getAssignVisibleAppsHotKey(),
             getAssignAppHotKey(for: nil),
             getUnassignAppHotKey(),
             getToggleAssignmentHotKey(),
-            getRecentWorkspaceHotKey(),
             getCycleWorkspacesHotKey(next: false),
             getCycleWorkspacesHotKey(next: true)
         ] +
@@ -58,12 +56,6 @@ final class WorkspaceHotKeys {
         }
 
         return (shortcut, action)
-    }
-
-    private func getAssignVisibleAppsHotKey() -> (AppHotKey, () -> ())? {
-        guard let shortcut = workspaceSettings.assignVisibleApps else { return nil }
-
-        return (shortcut, { [weak self] in self?.assignVisibleApps() })
     }
 
     private func getAssignAppHotKey(for workspace: Workspace?) -> (AppHotKey, () -> ())? {
@@ -140,47 +132,24 @@ extension WorkspaceHotKeys {
             return
         }
 
-        guard let workspace = workspace ?? workspaceManager.activeWorkspace[activeApp.display ?? ""] else {
+        // If no specific workspace provided, find which workspace the app belongs to
+        let targetWorkspace = workspace ?? workspaceRepository.workspaces.first { $0.apps.containsApp(activeApp) }
+
+        guard let targetWorkspace else {
             Alert.showOkAlert(
                 title: "Error",
-                message: "No workspace is active on the current display."
+                message: "Please use a workspace-specific assignment hotkey, or first add the app to a workspace."
             )
             return
         }
 
-        guard let updatedWorkspace = workspaceRepository.findWorkspace(with: workspace.id) else { return }
+        guard let updatedWorkspace = workspaceRepository.findWorkspace(with: targetWorkspace.id) else { return }
 
         workspaceManager.assignApp(activeApp.toMacApp, to: updatedWorkspace)
 
-        if !workspace.isDynamic {
-            activeApp.centerApp(display: workspace.display)
-        }
-
         Toast.showWith(
             icon: "square.stack.3d.up",
-            message: "\(appName) - Assigned To \(workspace.name)",
-            textColor: .positive
-        )
-    }
-
-    private func assignVisibleApps() {
-        guard let display = NSScreen.main?.localizedName else { return }
-        guard let workspace = workspaceManager.activeWorkspace[display] else {
-            Alert.showOkAlert(
-                title: "Error",
-                message: "No workspace is active on the current display."
-            )
-            return
-        }
-
-        let visibleApps = NSWorkspace.shared.runningApplications
-            .regularVisibleApps(onDisplays: workspace.displays, excluding: [])
-
-        workspaceManager.assignApps(visibleApps.map(\.toMacApp), to: workspace)
-
-        Toast.showWith(
-            icon: "square.stack.3d.up",
-            message: "Assigned \(visibleApps.count) App(s) To \(workspace.name)",
+            message: "\(appName) - Assigned To \(targetWorkspace.name)",
             textColor: .positive
         )
     }

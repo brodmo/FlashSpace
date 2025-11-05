@@ -10,30 +10,14 @@ import Combine
 
 typealias DisplayName = String
 
-struct ActiveWorkspace {
-    let id: WorkspaceID
-    let name: String
-    let number: String?
-    let symbolIconName: String?
-    let display: DisplayName
-}
-
 final class WorkspaceManager: ObservableObject {
-    @Published private(set) var activeWorkspaceDetails: ActiveWorkspace?
-
-    private(set) var lastFocusedApp: [WorkspaceID: MacApp] = [:]
-    private(set) var activeWorkspace: [DisplayName: Workspace] = [:]
-    private(set) var mostRecentWorkspace: [DisplayName: Workspace] = [:]
-    private(set) var lastWorkspaceActivation = Date.distantPast
+    // Minimal state for cycling to work
+    private var lastActivatedWorkspace: Workspace?
 
     private var cancellables = Set<AnyCancellable>()
-    private var observeFocusCancellable: AnyCancellable?
-
-    private lazy var focusedWindowTracker = AppDependencies.shared.focusedWindowTracker
 
     private let workspaceRepository: WorkspaceRepository
     private let workspaceSettings: WorkspaceSettings
-    private let displayManager: DisplayManager
 
     init(
         workspaceRepository: WorkspaceRepository,
@@ -42,121 +26,32 @@ final class WorkspaceManager: ObservableObject {
     ) {
         self.workspaceRepository = workspaceRepository
         self.workspaceSettings = settingsRepository.workspaceSettings
-        self.displayManager = displayManager
 
         PermissionsManager.shared.askForAccessibilityPermissions()
-        observe()
-    }
-
-    private func observe() {
-        NotificationCenter.default
-            .publisher(for: NSApplication.didChangeScreenParametersNotification)
-            .sink { [weak self] _ in
-                self?.activeWorkspace = [:]
-                self?.mostRecentWorkspace = [:]
-                self?.activeWorkspaceDetails = nil
-            }
-            .store(in: &cancellables)
-
-        workspaceRepository.workspacesPublisher
-            .sink { [weak self] workspaces in
-                self?.updateWorkspaces(workspaces)
-            }
-            .store(in: &cancellables)
-
-        observeFocus()
-    }
-
-    private func observeFocus() {
-        observeFocusCancellable = NSWorkspace.shared.notificationCenter
-            .publisher(for: NSWorkspace.didActivateApplicationNotification)
-            .compactMap { $0.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication }
-            .filter { $0.activationPolicy == .regular }
-            .sink { [weak self] application in
-                self?.rememberLastFocusedApp(application, retry: true)
-            }
-    }
-
-    private func rememberLastFocusedApp(_ application: NSRunningApplication, retry: Bool) {
-        guard application.display != nil else {
-            if retry {
-                Logger.log("Retrying to get display for \(application.localizedName ?? "")")
-                return DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-                    if let frontmostApp = NSWorkspace.shared.frontmostApplication {
-                        self.rememberLastFocusedApp(frontmostApp, retry: false)
-                    }
-                }
-            } else {
-                return Logger.log("Unable to get display for \(application.localizedName ?? "")")
-            }
-        }
-
-        let focusedDisplay = NSScreen.main?.localizedName ?? ""
-
-        if let activeWorkspace = activeWorkspace[focusedDisplay], activeWorkspace.apps.containsApp(application) {
-            updateLastFocusedApp(application.toMacApp, in: activeWorkspace)
-            updateActiveWorkspace(activeWorkspace, on: [focusedDisplay])
-        }
-
-        displayManager.trackDisplayFocus(on: focusedDisplay, for: application)
-    }
-
-    private func updateWorkspaces(_ workspaces: [Workspace]) {
-        let updatedWorkspaces = workspaces.reduce(into: [WorkspaceID: Workspace]()) { $0[$1.id] = $1 }
-
-        for (display, workspace) in activeWorkspace {
-            activeWorkspace[display] = updatedWorkspaces[workspace.id]
-        }
-
-        for (display, workspace) in mostRecentWorkspace {
-            mostRecentWorkspace[display] = updatedWorkspaces[workspace.id]
-        }
     }
 
     private func findAppToFocus(in workspace: Workspace) -> NSRunningApplication? {
         let runningApps = NSWorkspace.shared.runningApplications
             .filter { workspace.apps.containsApp($0) }
 
-        var appToFocus: NSRunningApplication?
-
-        if workspace.appToFocus == nil {
-            appToFocus = runningApps.find(lastFocusedApp[workspace.id])
-        } else {
-            appToFocus = runningApps.find(workspace.appToFocus)
+        // If workspace has a preferred app to focus, use that
+        if let preferredApp = workspace.appToFocus {
+            if let app = runningApps.find(preferredApp) {
+                return app
+            }
         }
 
-        let fallbackToLastApp = runningApps.findFirstMatch(with: workspace.apps.reversed())
+        // Otherwise just pick first running app from the group
+        let fallbackApp = runningApps.findFirstMatch(with: workspace.apps)
         let fallbackToFinder = NSWorkspace.shared.runningApplications.first(where: \.isFinder)
 
-        return appToFocus ?? fallbackToLastApp ?? fallbackToFinder
+        return fallbackApp ?? fallbackToFinder
     }
 
     private func centerCursorIfNeeded(in frame: CGRect?) {
-        guard workspaceSettings.centerCursorOnWorkspaceChange, let frame else { return }
+        guard workspaceSettings.centerCursorOnAppActivation, let frame else { return }
 
         CGWarpMouseCursorPosition(CGPoint(x: frame.midX, y: frame.midY))
-    }
-
-    private func updateActiveWorkspace(_ workspace: Workspace, on displays: Set<DisplayName>) {
-        lastWorkspaceActivation = Date()
-
-        // Save the most recent workspace if it's not the current one
-        for display in displays {
-            if activeWorkspace[display]?.id != workspace.id {
-                mostRecentWorkspace[display] = activeWorkspace[display]
-            }
-            activeWorkspace[display] = workspace
-        }
-
-        activeWorkspaceDetails = .init(
-            id: workspace.id,
-            name: workspace.name,
-            number: workspaceRepository.workspaces
-                .firstIndex { $0.id == workspace.id }
-                .map { "\($0 + 1)" },
-            symbolIconName: workspace.symbolIconName,
-            display: workspace.displayForPrint
-        )
     }
 
     private func openAppsIfNeeded(in workspace: Workspace) {
@@ -185,37 +80,15 @@ final class WorkspaceManager: ObservableObject {
 // MARK: - Workspace Actions
 extension WorkspaceManager {
     func activateWorkspace(_ workspace: Workspace, setFocus: Bool) {
-        let displays = workspace.displays
-
         Logger.log("")
         Logger.log("")
         Logger.log("APP GROUP: \(workspace.name)")
-        Logger.log("DISPLAYS: \(displays.joined(separator: ", "))")
         Logger.log("----")
 
-        // If dynamic workspace with no running apps, optionally launch them
-        if workspace.isDynamic, workspace.displays.isEmpty,
-           workspace.apps.isNotEmpty, workspace.openAppsOnActivation == true {
-            Logger.log("No running apps in the group - launching apps")
-            openAppsIfNeeded(in: workspace)
+        // Remember for cycling
+        lastActivatedWorkspace = workspace
 
-            if !workspaceSettings.activeWorkspaceOnFocusChange {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                    self.activateWorkspace(workspace, setFocus: setFocus)
-                }
-            }
-            return
-        }
-
-        guard displays.isNotEmpty else {
-            Logger.log("No displays found for workspace: \(workspace.name) - skipping")
-            return
-        }
-
-        focusedWindowTracker.stopTracking()
-        defer { focusedWindowTracker.startTracking() }
-
-        updateActiveWorkspace(workspace, on: displays)
+        // Optionally launch apps in the group
         openAppsIfNeeded(in: workspace)
 
         // Simply focus an app in the group if requested
@@ -242,74 +115,41 @@ extension WorkspaceManager {
 
         guard let targetWorkspace = workspaceRepository.findWorkspace(with: workspace.id) else { return }
 
-        updateLastFocusedApp(app, in: targetWorkspace)
-
-        if workspaceSettings.changeWorkspaceOnAppAssign {
-            activateWorkspace(targetWorkspace, setFocus: true)
-        } else {
-            AppDependencies.shared.focusManager.nextWorkspaceApp()
-        }
+        // Just focus the next app in the workspace
+        AppDependencies.shared.focusManager.nextWorkspaceApp()
 
         NotificationCenter.default.post(name: .appsListChanged, object: nil)
     }
 
-    func activateWorkspace(next: Bool, skipEmpty: Bool, loop: Bool) {
-        let screen = workspaceSettings.switchWorkspaceOnCursorScreen
-            ? displayManager.getCursorScreen()
-            : NSScreen.main?.localizedName
+    func activateWorkspace(next: Bool, loop: Bool) {
+        let workspaces = workspaceRepository.workspaces
 
-        guard let screen else { return }
-
-        var workspacesToLoop = workspaceRepository.workspaces
-
-        if !workspaceSettings.loopWorkspacesOnAllDisplays {
-            workspacesToLoop = workspacesToLoop
-                .filter { $0.displays.contains(screen) }
+        guard let currentWorkspace = lastActivatedWorkspace ?? workspaces.first else {
+            // No workspace activated yet, activate first one
+            if let first = workspaces.first {
+                activateWorkspace(first, setFocus: true)
+            }
+            return
         }
 
-        if !next {
-            workspacesToLoop = workspacesToLoop.reversed()
-        }
-
-        guard let activeWorkspace = activeWorkspace[screen] ?? workspacesToLoop.first else { return }
+        var workspacesToLoop = next ? workspaces : workspaces.reversed()
 
         let nextWorkspaces = workspacesToLoop
-            .drop(while: { $0.id != activeWorkspace.id })
+            .drop(while: { $0.id != currentWorkspace.id })
             .dropFirst()
 
-        var selectedWorkspace = nextWorkspaces.first ?? (loop ? workspacesToLoop.first : nil)
+        let selectedWorkspace = nextWorkspaces.first ?? (loop ? workspacesToLoop.first : nil)
 
-        if skipEmpty {
-            let runningApps = NSWorkspace.shared.runningRegularApps
-                .compactMap(\.bundleIdentifier)
-                .asSet
-
-            selectedWorkspace = (nextWorkspaces + (loop ? workspacesToLoop : []))
-                .drop(while: { $0.apps.allSatisfy { !runningApps.contains($0.bundleIdentifier) } })
-                .first
-        }
-
-        guard let selectedWorkspace, selectedWorkspace.id != activeWorkspace.id else { return }
+        guard let selectedWorkspace, selectedWorkspace.id != currentWorkspace.id else { return }
 
         activateWorkspace(selectedWorkspace, setFocus: true)
     }
 
-    func activateRecentWorkspace() {
-        guard let screen = displayManager.getCursorScreen(),
-              let mostRecentWorkspace = mostRecentWorkspace[screen]
-        else { return }
-
-        activateWorkspace(mostRecentWorkspace, setFocus: true)
-    }
-
     func activateWorkspaceIfActive(_ workspaceId: WorkspaceID) {
-        guard activeWorkspace.values.contains(where: { $0.id == workspaceId }) else { return }
+        // Simplified: just re-activate if it was the last one
+        guard lastActivatedWorkspace?.id == workspaceId else { return }
         guard let updatedWorkspace = workspaceRepository.findWorkspace(with: workspaceId) else { return }
 
         activateWorkspace(updatedWorkspace, setFocus: false)
-    }
-
-    func updateLastFocusedApp(_ app: MacApp, in workspace: Workspace) {
-        lastFocusedApp[workspace.id] = app
     }
 }

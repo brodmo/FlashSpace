@@ -30,7 +30,7 @@ struct SettingsView: View {
                     .tag("General")
                 Label("Menu Bar", systemImage: "contextualmenu.and.cursorarrow")
                     .tag("MenuBar")
-                Label("Workspaces", systemImage: "square.stack.3d.up")
+                Label("App Groups", systemImage: "square.stack.3d.up")
                     .tag("Workspaces")
                 Label("Focus Manager", systemImage: "macwindow.on.rectangle")
                     .tag("Focus")
