@@ -38,7 +38,6 @@ final class HotKeysManager {
         enableAll()
     }
 
-    // swiftlint:disable:next function_body_length
     func enableAll() {
         allHotKeys.removeAll()
         let addShortcut = { (title: String, shortcut: Shortcut) in

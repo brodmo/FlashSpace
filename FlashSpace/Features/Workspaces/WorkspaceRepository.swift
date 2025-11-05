@@ -29,7 +29,7 @@ final class AppGroupRepository: ObservableObject {
 
     private func loadAppGroups() {
         if let config = try? ConfigSerializer.deserialize(AppGroupsConfig.self, filename: "appgroups") {
-            self.appGroups = config.appGroups
+            appGroups = config.appGroups
         }
     }
 
