@@ -52,7 +52,7 @@ extension WorkspaceSettings: SettingsProtocol {
 
     func load(from appSettings: AppSettings) {
         observer = nil
-        centerCursorOnAppActivation = appSettings.centerCursorOnWorkspaceChange ?? false
+        centerCursorOnAppActivation = appSettings.centerCursorOnAppActivation ?? false
 
         assignFocusedApp = appSettings.assignFocusedApp
         unassignFocusedApp = appSettings.unassignFocusedApp
@@ -67,7 +67,7 @@ extension WorkspaceSettings: SettingsProtocol {
     }
 
     func update(_ appSettings: inout AppSettings) {
-        appSettings.centerCursorOnWorkspaceChange = centerCursorOnAppActivation
+        appSettings.centerCursorOnAppActivation = centerCursorOnAppActivation
 
         appSettings.assignFocusedApp = assignFocusedApp
         appSettings.unassignFocusedApp = unassignFocusedApp

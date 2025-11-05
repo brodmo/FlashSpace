@@ -19,7 +19,6 @@ struct AppDependencies {
     let hotKeysManager: HotKeysManager
 
     let focusManager: FocusManager
-    let focusedWindowTracker: FocusedWindowTracker
 
     let settingsRepository: SettingsRepository
     let generalSettings = GeneralSettings()
@@ -59,16 +58,9 @@ struct AppDependencies {
             focusManager: focusManager,
             settingsRepository: settingsRepository
         )
-        self.focusedWindowTracker = FocusedWindowTracker(
-            workspaceRepository: workspaceRepository,
-            workspaceManager: workspaceManager,
-            settingsRepository: settingsRepository
-        )
 
         Migrations.migrateIfNeeded(
             settingsRepository: settingsRepository
         )
-
-        focusedWindowTracker.startTracking()
     }
 }
