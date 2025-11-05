@@ -138,8 +138,8 @@ final class FocusManager {
     private func getFocusedAppIndex() -> (Int, [MacApp])? {
         guard let focusedApp else { return nil }
 
-        let workspace = workspaceManager.activeWorkspace[NSScreen.main?.localizedName ?? ""]
-            ?? workspaceRepository.workspaces.first { $0.apps.containsApp(focusedApp) }
+        // Find workspace containing the focused app (stateless approach)
+        let workspace = workspaceRepository.workspaces.first { $0.apps.containsApp(focusedApp) }
 
         guard let workspace else { return nil }
 

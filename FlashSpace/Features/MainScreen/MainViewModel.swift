@@ -102,8 +102,6 @@ final class MainViewModel: ObservableObject {
             .sorted()
     }
 
-    var displayMode: DisplayMode { workspaceSettings.displayMode }
-
     private var cancellables: Set<AnyCancellable> = []
     private var loadingWorkspace = false
 
@@ -127,12 +125,6 @@ final class MainViewModel: ObservableObject {
         NotificationCenter.default
             .publisher(for: .profileChanged)
             .sink { [weak self] _ in self?.reloadWorkspaces() }
-            .store(in: &cancellables)
-
-        workspaceSettings.updatePublisher
-            .compactMap { [weak self] in self?.workspaceSettings.displayMode }
-            .removeDuplicates()
-            .sink { [weak self] _ in self?.objectWillChange.send() }
             .store(in: &cancellables)
     }
 

@@ -11,7 +11,6 @@ struct WorkspaceConfigurationView: View {
     @Environment(\.openWindow) var openWindow
 
     @ObservedObject var viewModel: MainViewModel
-    @StateObject var profilesRepository = AppDependencies.shared.profilesRepository
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0.0) {
@@ -23,7 +22,7 @@ struct WorkspaceConfigurationView: View {
             }
 
             Spacer()
-            profileAndSettings
+            settingsButton
         }
     }
 
@@ -37,14 +36,6 @@ struct WorkspaceConfigurationView: View {
             TextField("Name", text: $viewModel.workspaceName)
                 .onSubmit(viewModel.saveWorkspace)
                 .padding(.bottom)
-
-            Picker("Display:", selection: $viewModel.workspaceDisplay) {
-                ForEach(viewModel.screens, id: \.self) {
-                    Text($0.padEnd(toLength: 20)).tag($0)
-                }
-            }
-            .padding(.bottom)
-            .hidden(viewModel.displayMode == .dynamic)
 
             Picker("Focus App:", selection: $viewModel.workspaceAppToFocus) {
                 ForEach(viewModel.focusAppOptions, id: \.self) {
@@ -74,14 +65,8 @@ struct WorkspaceConfigurationView: View {
         .disabled(viewModel.selectedWorkspace == nil)
     }
 
-    private var profileAndSettings: some View {
+    private var settingsButton: some View {
         HStack {
-            Picker("Profile:", selection: $profilesRepository.selectedProfile) {
-                ForEach(profilesRepository.profiles) {
-                    Text($0.name.padEnd(toLength: 20)).tag($0)
-                }
-            }
-
             Button(action: {
                 openWindow(id: "settings")
             }, label: {
