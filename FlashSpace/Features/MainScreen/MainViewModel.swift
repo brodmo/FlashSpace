@@ -30,10 +30,6 @@ final class MainViewModel: ObservableObject {
         didSet { saveWorkspace() }
     }
 
-    @Published var workspaceDisplay = "" {
-        didSet { saveWorkspace() }
-    }
-
     @Published var workspaceAppToFocus: MacApp? = AppConstants.lastFocusedOption {
         didSet { saveWorkspace() }
     }
@@ -93,15 +89,6 @@ final class MainViewModel: ObservableObject {
         }
     }
 
-    var screens: [String] {
-        let set = NSScreen.screens.compactMap(\.localizedName).asSet
-        let otherScreens = workspaces.map(\.display)
-
-        return Array(set.union(otherScreens))
-            .filter(\.isNotEmpty)
-            .sorted()
-    }
-
     private var cancellables: Set<AnyCancellable> = []
     private var loadingWorkspace = false
 
@@ -111,8 +98,6 @@ final class MainViewModel: ObservableObject {
 
     init() {
         self.workspaces = workspaceRepository.workspaces
-        self.workspaceDisplay = NSScreen.main?.localizedName ?? ""
-
         observe()
     }
 
@@ -135,7 +120,6 @@ final class MainViewModel: ObservableObject {
         workspaceName = selectedWorkspace?.name ?? ""
         workspaceShortcut = selectedWorkspace?.activateShortcut
         workspaceAssignShortcut = selectedWorkspace?.assignAppShortcut
-        workspaceDisplay = selectedWorkspace?.display ?? NSScreen.main?.localizedName ?? ""
         workspaceApps = selectedWorkspace?.apps
         workspaceAppToFocus = selectedWorkspace?.appToFocus ?? AppConstants.lastFocusedOption
         workspaceSymbolIconName = selectedWorkspace?.symbolIconName
@@ -165,7 +149,6 @@ extension MainViewModel {
         let updatedWorkspace = Workspace(
             id: selectedWorkspace.id,
             name: workspaceName,
-            display: workspaceDisplay,
             activateShortcut: workspaceShortcut,
             assignAppShortcut: workspaceAssignShortcut,
             apps: selectedWorkspace.apps,

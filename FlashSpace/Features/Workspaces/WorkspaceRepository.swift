@@ -40,7 +40,6 @@ final class WorkspaceRepository: ObservableObject {
         let workspace = Workspace(
             id: .init(),
             name: name,
-            display: NSScreen.main?.localizedName ?? "",
             activateShortcut: nil,
             assignAppShortcut: nil,
             apps: []

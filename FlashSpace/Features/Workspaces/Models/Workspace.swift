@@ -14,7 +14,6 @@ struct Workspace: Identifiable, Codable, Hashable {
     enum CodingKeys: String, CodingKey {
         case id
         case name
-        case display
         case activateShortcut = "shortcut"
         case assignAppShortcut
         case apps
@@ -25,7 +24,6 @@ struct Workspace: Identifiable, Codable, Hashable {
 
     var id: WorkspaceID
     var name: String
-    var display: DisplayName
     var activateShortcut: AppHotKey?
     var assignAppShortcut: AppHotKey?
     var apps: [MacApp]
