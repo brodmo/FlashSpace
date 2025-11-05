@@ -22,8 +22,6 @@ struct FlashCutApp: App {
         Window("⚡ FlashCut v\(AppConstants.version)", id: "main") {
             MainView()
                 .onAppear {
-                    setupWindowHandling()
-                    handleFirstLaunch()
                     showDockIcon()
                 }
                 .onDisappear {
@@ -31,6 +29,10 @@ struct FlashCutApp: App {
                 }
         }
         .windowResizability(.contentSize)
+        .defaultPosition(.center)
+        .onAppear {
+            setupWindowHandling()
+        }
 
         Window("Settings", id: "settings") {
             SettingsView()
@@ -42,9 +44,11 @@ struct FlashCutApp: App {
                 }
         }
         .windowResizability(.contentSize)
+        .defaultPosition(.center)
     }
 
     private func setupWindowHandling() {
+        // Setup notification handlers
         NotificationCenter.default
             .publisher(for: .openMainWindow)
             .sink { _ in
@@ -52,14 +56,12 @@ struct FlashCutApp: App {
                 NSApp.activate(ignoringOtherApps: true)
             }
             .store(in: &cancellables)
-    }
 
-    private func handleFirstLaunch() {
-        if firstLaunch {
-            firstLaunch = false
-        } else {
+        // Hide main window on launch (except first time)
+        if !firstLaunch {
             dismissWindow(id: "main")
         }
+        firstLaunch = false
     }
 
     private func showDockIcon() {
