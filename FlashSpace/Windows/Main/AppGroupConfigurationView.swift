@@ -50,6 +50,7 @@ struct AppGroupConfigurationView: View {
                 .fixedSize()
             }
         }
-        .padding(.vertical, 12)
+        .padding(.top, 12)
+        .padding(.bottom, 4)
     }
 }
