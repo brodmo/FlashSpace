@@ -18,7 +18,7 @@ struct MainView: View {
             rightPanel
         }
         .padding()
-        .frame(width: 470, height: 520)
+        .frame(width: 470, height: 460)
         .sheet(isPresented: $viewModel.isInputDialogPresented) {
             InputDialog(
                 title: "Enter App Group name:",
@@ -31,7 +31,7 @@ struct MainView: View {
     private var rightPanel: some View {
         VStack(alignment: .leading, spacing: 0) {
             AppGroupConfigurationView(viewModel: viewModel)
-                .padding(.bottom, 12)
+                .frame(height: 60)
 
             if viewModel.selectedAppGroup != nil {
                 assignedApps
@@ -97,7 +97,7 @@ struct MainView: View {
                     app: app
                 )
             }
-            .frame(width: 200, height: 350)
+            .frame(width: 200, height: 290)
             .tahoeBorder()
 
             HStack {
