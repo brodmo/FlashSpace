@@ -30,10 +30,6 @@ final class MainViewModel: ObservableObject {
         didSet { saveAppGroup() }
     }
 
-    @Published var isOpenAppsOnActivationEnabled = false {
-        didSet { saveAppGroup() }
-    }
-
     @Published var isInputDialogPresented = false
     @Published var userInput = ""
 
@@ -107,7 +103,6 @@ final class MainViewModel: ObservableObject {
         appGroupShortcut = selectedAppGroup?.activateShortcut
         appGroupApps = selectedAppGroup?.apps
         appGroupTargetApp = selectedAppGroup?.targetApp ?? AppConstants.lastFocusedOption
-        isOpenAppsOnActivationEnabled = selectedAppGroup?.openAppsOnActivation ?? false
         selectedAppGroup.flatMap { selectedAppGroups = [$0] }
     }
 
@@ -136,7 +131,7 @@ extension MainViewModel {
             activateShortcut: appGroupShortcut,
             apps: selectedAppGroup.apps,
             targetApp: appGroupTargetApp == AppConstants.lastFocusedOption ? nil : appGroupTargetApp,
-            openAppsOnActivation: isOpenAppsOnActivationEnabled
+            openAppsOnActivation: appGroupTargetApp == AppConstants.lastFocusedOption ? nil : true
         )
 
         appGroupRepository.updateAppGroup(updatedAppGroup)

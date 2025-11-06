@@ -31,8 +31,6 @@ struct MainView: View {
 
     private var appGroups: some View {
         VStack(alignment: .leading) {
-            Text("App Groups:")
-
             List(
                 $viewModel.appGroups,
                 id: \.self,
@@ -66,8 +64,6 @@ struct MainView: View {
 
     private var assignedApps: some View {
         VStack(alignment: .leading) {
-            Text("Assigned Apps:")
-
             List(
                 viewModel.appGroupApps ?? [],
                 id: \.self,

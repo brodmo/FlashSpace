@@ -13,42 +13,56 @@ struct AppGroupConfigurationView: View {
     @ObservedObject var viewModel: MainViewModel
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0.0) {
-            configuration
+        if viewModel.selectedAppGroup != nil {
+            VStack(alignment: .leading, spacing: 0.0) {
+                configuration
 
-            if viewModel.appGroups.contains(where: { $0.apps.contains(where: \.bundleIdentifier.isEmpty) }) {
-                Text("Could not migrate some apps. Please re-add them to fix the problem.")
-                    .foregroundColor(.errorRed)
+                if viewModel.appGroups.contains(where: { $0.apps.contains(where: \.bundleIdentifier.isEmpty) }) {
+                    Text("Could not migrate some apps. Please re-add them to fix the problem.")
+                        .foregroundColor(.errorRed)
+                }
+
+                Spacer()
+                settingsButton
             }
-
-            Spacer()
-            settingsButton
+        } else {
+            VStack {
+                Spacer()
+                settingsButton
+            }
         }
     }
 
     private var configuration: some View {
-        VStack(alignment: .leading, spacing: 1.0) {
-            Text("App Group Configuration:")
-                .padding(.bottom, 16.0)
-                .fixedSize()
+        VStack(alignment: .leading, spacing: 8.0) {
+            // Name and Shortcut on one line
+            HStack {
+                TextField("Name", text: $viewModel.appGroupName)
+                    .onSubmit(viewModel.saveAppGroup)
+                    .frame(maxWidth: .infinity)
 
-            Text("Name:").padding(.bottom, 2.0)
-            TextField("Name", text: $viewModel.appGroupName)
-                .onSubmit(viewModel.saveAppGroup)
-                .padding(.bottom)
+                HotKeyControl(shortcut: $viewModel.appGroupShortcut)
+                    .fixedSize()
+            }
+            .padding(.bottom, 8)
 
-            Picker("Primary App:", selection: $viewModel.appGroupTargetApp) {
-                ForEach(viewModel.targetAppOptions, id: \.self) {
-                    Text($0.name.padEnd(toLength: 20)).tag($0)
+            // Primary App with tooltip
+            HStack {
+                Picker("Primary App", selection: $viewModel.appGroupTargetApp) {
+                    ForEach(viewModel.targetAppOptions, id: \.self) {
+                        Text($0.name.padEnd(toLength: 20)).tag($0)
+                    }
                 }
-            }.padding(.bottom)
+                .labelsHidden()
 
-            Text("Activate Shortcut:")
-            HotKeyControl(shortcut: $viewModel.appGroupShortcut).padding(.bottom)
-
-            Toggle("Open apps on activation", isOn: $viewModel.isOpenAppsOnActivationEnabled).padding(.bottom)
+                Button(action: {}) {
+                    Image(systemName: "questionmark.circle")
+                        .foregroundColor(.secondary)
+                }
+                .buttonStyle(.plain)
+                .help("The primary app is always focused and launched if not running when activating this group")
+            }
         }
-        .disabled(viewModel.selectedAppGroup == nil)
     }
 
     private var settingsButton: some View {
