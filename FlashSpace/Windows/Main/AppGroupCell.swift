@@ -12,6 +12,7 @@ struct AppGroupCell: View {
     @State var isTargeted = false
     @State var isEditing = false
     @State var editedName = ""
+    @FocusState private var isTextFieldFocused: Bool
     @Binding var selectedApps: Set<MacApp>
     @Binding var appGroup: AppGroup
 
@@ -21,11 +22,19 @@ struct AppGroupCell: View {
     var body: some View {
         HStack {
             if isEditing {
-                TextField("Name", text: $editedName, onCommit: {
-                    saveName()
-                })
-                .textFieldStyle(.plain)
-                .onAppear { editedName = appGroup.name }
+                TextField("Name", text: $editedName)
+                    .textFieldStyle(.plain)
+                    .focused($isTextFieldFocused)
+                    .onAppear {
+                        editedName = appGroup.name
+                        isTextFieldFocused = true
+                    }
+                    .onSubmit {
+                        saveName()
+                    }
+                    .onExitCommand {
+                        isEditing = false
+                    }
             } else {
                 Text(appGroup.name)
                     .lineLimit(1)
