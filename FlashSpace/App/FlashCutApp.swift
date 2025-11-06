@@ -17,8 +17,8 @@ struct FlashCutApp: App {
     @State private var cancellables = Set<AnyCancellable>()
 
     init() {
-        // Set faster tooltip delay (200ms instead of default ~1000ms)
-        UserDefaults.standard.set(200, forKey: "NSInitialToolTipDelay")
+        // Set faster tooltip delay (500ms instead of default ~1000ms)
+        UserDefaults.standard.set(500, forKey: "NSInitialToolTipDelay")
     }
 
     var body: some Scene {

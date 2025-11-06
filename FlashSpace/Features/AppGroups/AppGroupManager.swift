@@ -57,6 +57,11 @@ final class AppGroupManager: ObservableObject {
             if let app = runningApps.find(preferredApp) {
                 return app
             }
+            // If target app is not running, launch it
+            launchApp(preferredApp)
+            // Wait briefly for it to launch, then return it
+            Thread.sleep(forTimeInterval: 0.3)
+            return NSWorkspace.shared.runningApplications.find(preferredApp)
         }
 
         // Otherwise find the most recently activated app from the group
@@ -68,27 +73,22 @@ final class AppGroupManager: ObservableObject {
             })
     }
 
-    private func openAppsIfNeeded(in appGroup: AppGroup) {
-        guard appGroup.openAppsOnActivation == true else { return }
+    private func launchApp(_ app: MacApp) {
+        guard let appUrl = NSWorkspace.shared.urlForApplication(withBundleIdentifier: app.bundleIdentifier) else {
+            Logger.log("Failed to find app URL for: \(app.name)")
+            return
+        }
 
-        let runningBundleIds = NSWorkspace.shared.runningApplications
-            .compactMap(\.bundleIdentifier)
-            .asSet
+        Logger.log("Launching primary app: \(app.name)")
 
-        appGroup.apps
-            .filter { !runningBundleIds.contains($0.bundleIdentifier) }
-            .compactMap { NSWorkspace.shared.urlForApplication(withBundleIdentifier: $0.bundleIdentifier) }
-            .forEach { appUrl in
-                Logger.log("Open App: \(appUrl)")
-
-                let config = NSWorkspace.OpenConfiguration()
-                NSWorkspace.shared.openApplication(at: appUrl, configuration: config) { _, error in
-                    if let error {
-                        Logger.log("Failed to open \(appUrl): \(error.localizedDescription)")
-                    }
-                }
+        let config = NSWorkspace.OpenConfiguration()
+        NSWorkspace.shared.openApplication(at: appUrl, configuration: config) { _, error in
+            if let error {
+                Logger.log("Failed to launch \(app.name): \(error.localizedDescription)")
             }
+        }
     }
+
 }
 
 // MARK: - AppGroup Actions
@@ -107,10 +107,8 @@ extension AppGroupManager {
         // Remember for cycling
         lastActivatedAppGroup = appGroup
 
-        // Optionally launch apps in the group
-        openAppsIfNeeded(in: appGroup)
-
         // Simply activate an app in the group if requested
+        // (findApp will launch the primary app if needed)
         if setFocus {
             let appToActivate = findApp(in: appGroup)
             Logger.log("ACTIVATE: \(appToActivate?.localizedName ?? "none")")
