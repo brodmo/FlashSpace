@@ -39,7 +39,7 @@ struct AppGroupConfigurationView: View {
                     Image(systemName: "questionmark.circle")
                         .foregroundColor(.secondary)
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.borderless)
                 .help("The primary app is always focused and launched if not running when activating this group")
 
                 Spacer()
