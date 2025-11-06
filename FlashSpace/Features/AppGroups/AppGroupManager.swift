@@ -57,11 +57,9 @@ final class AppGroupManager: ObservableObject {
             if let app = runningApps.find(preferredApp) {
                 return app
             }
-            // If target app is not running, launch it
+            // If target app is not running, launch it (will activate automatically)
             launchApp(preferredApp)
-            // Wait briefly for it to launch, then return it
-            Thread.sleep(forTimeInterval: 0.3)
-            return NSWorkspace.shared.runningApplications.find(preferredApp)
+            return nil
         }
 
         // Otherwise find the most recently activated app from the group
@@ -82,9 +80,12 @@ final class AppGroupManager: ObservableObject {
         Logger.log("Launching primary app: \(app.name)")
 
         let config = NSWorkspace.OpenConfiguration()
-        NSWorkspace.shared.openApplication(at: appUrl, configuration: config) { _, error in
+        config.activates = true  // Bring app to foreground when launched
+        NSWorkspace.shared.openApplication(at: appUrl, configuration: config) { app, error in
             if let error {
-                Logger.log("Failed to launch \(app.name): \(error.localizedDescription)")
+                Logger.log("Failed to launch \(app?.localizedName ?? "app"): \(error.localizedDescription)")
+            } else if let app {
+                Logger.log("Successfully launched and activated: \(app.localizedName ?? "app")")
             }
         }
     }
