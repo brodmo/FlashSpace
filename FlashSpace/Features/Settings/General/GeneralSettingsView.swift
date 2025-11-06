@@ -20,7 +20,7 @@ struct GeneralSettingsView: View {
             }
 
             Section("Shortcuts") {
-                hotkey("Toggle FlashCut", for: $settings.showFlashSpace)
+                hotkey("Toggle FlashCut", for: $settings.showFlashCut)
             }
         }
         .onAppear {

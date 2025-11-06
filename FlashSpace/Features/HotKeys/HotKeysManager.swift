@@ -69,7 +69,7 @@ final class HotKeysManager {
         }
 
         // General
-        if let showHotKey = settingsRepository.generalSettings.showFlashSpace?.toShortcut() {
+        if let showHotKey = settingsRepository.generalSettings.showFlashCut?.toShortcut() {
             let action = ShortcutAction(shortcut: showHotKey) { _ in
                 let visibleAppWindows = NSApp.windows
                     .filter(\.isVisible)

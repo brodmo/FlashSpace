@@ -1,5 +1,5 @@
 //
-//  FlashSpaceApp.swift
+//  FlashCutApp.swift
 //  FlashCut
 //
 //  Created by Wojciech Kulik on 19/01/2025.

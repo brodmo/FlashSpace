@@ -9,7 +9,7 @@ import Combine
 import Foundation
 
 final class GeneralSettings: ObservableObject {
-    @Published var showFlashSpace: AppHotKey?
+    @Published var showFlashCut: AppHotKey?
     @Published var checkForUpdatesAutomatically = false {
         didSet { UpdatesManager.shared.autoCheckForUpdates = checkForUpdatesAutomatically }
     }
@@ -21,7 +21,7 @@ final class GeneralSettings: ObservableObject {
 
     private func observe() {
         observer = Publishers.MergeMany(
-            $showFlashSpace.settingsPublisher(),
+            $showFlashCut.settingsPublisher(),
             $checkForUpdatesAutomatically.settingsPublisher()
         )
         .receive(on: DispatchQueue.main)
@@ -36,13 +36,13 @@ extension GeneralSettings: SettingsProtocol {
 
     func load(from appSettings: AppSettings) {
         observer = nil
-        showFlashSpace = appSettings.showFlashSpace
+        showFlashCut = appSettings.showFlashCut
         checkForUpdatesAutomatically = appSettings.checkForUpdatesAutomatically ?? false
         observe()
     }
 
     func update(_ appSettings: inout AppSettings) {
-        appSettings.showFlashSpace = showFlashSpace
+        appSettings.showFlashCut = showFlashCut
         appSettings.checkForUpdatesAutomatically = checkForUpdatesAutomatically
     }
 }

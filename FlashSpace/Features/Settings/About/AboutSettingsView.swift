@@ -17,55 +17,24 @@ struct AboutSettingsView: View {
                     Button("GitHub") { openGitHub("brodmo/FlashSpace") }
                     Button("Check for Updates") { UpdatesManager.shared.checkForUpdates() }
                 }
-                Text("FlashCut is a lightweight fork of FlashSpace by Wojciech Kulik")
+                Text("FlashCut is a lightweight, keyboard-focused fork of FlashSpace")
                     .foregroundStyle(.secondary)
                     .font(.callout)
             }
 
-            Section("Original Project") {
-                HStack {
-                    Text("FlashSpace by Wojciech Kulik")
-                    Spacer()
-                    Button("GitHub") { openGitHub("wojciech-kulik/FlashSpace") }
-                    Button("Release Notes") { openUrl("https://github.com/wojciech-kulik/FlashSpace/releases") }
-                }
-            }
-
             Section("Author") {
-                HStack {
-                    Text("Wojciech Kulik (@wojciech-kulik)")
-                    Spacer()
-                    Button("GitHub") { openGitHub("wojciech-kulik") }
-                    Button("X.com") { openUrl("https://x.com/kulik_wojciech") }
-                    Button("snippety.app") { openUrl("https://snippety.app") }
-                }
-            }
-
-            Section("Contributors") {
-                HStack {
-                    Text("Kwangmin Bae / Shirou (@PangMo5)")
-                    Spacer()
-                    Button("GitHub") { openGitHub("PangMo5") }
-                }
-                HStack {
-                    Text("Sergio (@sergiopatino)")
-                    Spacer()
-                    Button("GitHub") { openGitHub("sergiopatino") }
-                }
                 HStack {
                     Text("Moritz Brödel (@brodmo)")
                     Spacer()
                     Button("GitHub") { openGitHub("brodmo") }
                 }
+            }
+
+            Section("Based On") {
                 HStack {
-                    Text("Mattia Cerutti (@mattiacerutti)")
+                    Text("FlashSpace by Wojciech Kulik")
                     Spacer()
-                    Button("GitHub") { openGitHub("mattiacerutti") }
-                }
-                HStack {
-                    Text("Peter (@peterneutron)")
-                    Spacer()
-                    Button("GitHub") { openGitHub("peterneutron") }
+                    Button("GitHub") { openGitHub("wojciech-kulik/FlashSpace") }
                 }
             }
         }

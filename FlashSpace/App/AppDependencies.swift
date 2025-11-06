@@ -53,9 +53,5 @@ struct AppDependencies {
             focusManager: focusManager,
             settingsRepository: settingsRepository
         )
-
-        Migrations.migrateIfNeeded(
-            settingsRepository: settingsRepository
-        )
     }
 }

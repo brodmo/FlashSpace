@@ -22,7 +22,7 @@ struct MainView: View {
         .fixedSize()
         .sheet(isPresented: $viewModel.isInputDialogPresented) {
             InputDialog(
-                title: "Enter appGroup name:",
+                title: "Enter App Group name:",
                 userInput: $viewModel.userInput,
                 isPresented: $viewModel.isInputDialogPresented
             )

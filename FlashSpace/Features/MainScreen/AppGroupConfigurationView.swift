@@ -1,5 +1,5 @@
 //
-//  WorkspaceConfigurationView.swift
+//  AppGroupConfigurationView.swift
 //
 //  Created by Wojciech Kulik on 20/02/2025.
 //  Copyright © 2025 Wojciech Kulik. All rights reserved.
@@ -17,7 +17,7 @@ struct AppGroupConfigurationView: View {
             configuration
 
             if viewModel.appGroups.contains(where: { $0.apps.contains(where: \.bundleIdentifier.isEmpty) }) {
-                Text("Could not migrate some apps. Please re-add them to fix the problem. Please also check floating apps.")
+                Text("Could not migrate some apps. Please re-add them to fix the problem.")
                     .foregroundColor(.errorRed)
             }
 
@@ -37,7 +37,7 @@ struct AppGroupConfigurationView: View {
                 .onSubmit(viewModel.saveAppGroup)
                 .padding(.bottom)
 
-            Picker("Focus App:", selection: $viewModel.appGroupAppToFocus) {
+            Picker("Primary App:", selection: $viewModel.appGroupAppToFocus) {
                 ForEach(viewModel.focusAppOptions, id: \.self) {
                     Text($0.name.padEnd(toLength: 20)).tag($0)
                 }
