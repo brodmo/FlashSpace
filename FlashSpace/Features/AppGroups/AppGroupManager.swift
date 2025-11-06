@@ -79,9 +79,8 @@ final class AppGroupManager: ObservableObject {
 
         Logger.log("Launching primary app: \(app.name)")
 
-        let config = NSWorkspace.OpenConfiguration()
-        config.activates = true  // Bring app to foreground when launched
-        NSWorkspace.shared.openApplication(at: appUrl, configuration: config) { app, error in
+        // Note: OpenConfiguration activates by default (brings app to foreground)
+        NSWorkspace.shared.openApplication(at: appUrl, configuration: .init()) { app, error in
             if let error {
                 Logger.log("Failed to launch \(app?.localizedName ?? "app"): \(error.localizedDescription)")
             } else if let app {
