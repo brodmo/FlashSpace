@@ -61,7 +61,7 @@ struct MainView: View {
                 AppGroupCell(
                     selectedApps: $viewModel.selectedApps,
                     appGroup: $appGroup,
-                    isSelected: viewModel.selectedAppGroups.contains(appGroup)
+                    selectedAppGroups: $viewModel.selectedAppGroups
                 )
             }
             .tahoeBorder()

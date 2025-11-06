@@ -15,10 +15,14 @@ struct AppGroupCell: View {
     @FocusState private var isTextFieldFocused: Bool
     @Binding var selectedApps: Set<MacApp>
     @Binding var appGroup: AppGroup
-    let isSelected: Bool
+    @Binding var selectedAppGroups: Set<AppGroup>
 
     let appGroupManager: AppGroupManager = AppDependencies.shared.appGroupManager
     let appGroupRepository: AppGroupRepository = AppDependencies.shared.appGroupRepository
+
+    private var isSelected: Bool {
+        selectedAppGroups.contains(appGroup)
+    }
 
     var body: some View {
         HStack {
@@ -56,12 +60,10 @@ struct AppGroupCell: View {
                             .font(.system(size: 11))
                     }
                     .buttonStyle(.plain)
-                    .transition(.identity)
                 }
             }
         }
         .contentShape(Rectangle())
-        .animation(nil, value: isSelected)
         .dropDestination(for: MacAppWithAppGroup.self) { apps, _ in
             guard let sourceAppGroupId = apps.first?.appGroupId else { return false }
 
