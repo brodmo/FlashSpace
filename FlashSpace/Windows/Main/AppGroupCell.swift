@@ -8,25 +8,14 @@
 import SwiftUI
 import UniformTypeIdentifiers
 
-private struct IsSelectedKey: EnvironmentKey {
-    static let defaultValue: Bool = false
-}
-
-extension EnvironmentValues {
-    var isRowSelected: Bool {
-        get { self[IsSelectedKey.self] }
-        set { self[IsSelectedKey.self] = newValue }
-    }
-}
-
 struct AppGroupCell: View {
     @State var isTargeted = false
     @State var isEditing = false
     @State var editedName = ""
     @FocusState private var isTextFieldFocused: Bool
-    @Environment(\.isRowSelected) private var isSelected
     @Binding var selectedApps: Set<MacApp>
     @Binding var appGroup: AppGroup
+    let isSelected: Bool
 
     let appGroupManager: AppGroupManager = AppDependencies.shared.appGroupManager
     let appGroupRepository: AppGroupRepository = AppDependencies.shared.appGroupRepository

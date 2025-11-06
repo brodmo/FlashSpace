@@ -60,9 +60,10 @@ struct MainView: View {
             ) { $appGroup in
                 AppGroupCell(
                     selectedApps: $viewModel.selectedApps,
-                    appGroup: $appGroup
+                    appGroup: $appGroup,
+                    isSelected: viewModel.selectedAppGroups.contains(appGroup)
                 )
-                .environment(\.isRowSelected, viewModel.selectedAppGroups.contains(appGroup))
+                .tag(appGroup.wrappedValue)
             }
             .tahoeBorder()
 
