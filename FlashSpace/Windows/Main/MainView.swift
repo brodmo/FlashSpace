@@ -18,7 +18,7 @@ struct MainView: View {
             rightPanel
         }
         .padding()
-        .frame(width: 470, height: 470)
+        .frame(width: 450, height: 350)
         .sheet(isPresented: $viewModel.isInputDialogPresented) {
             InputDialog(
                 title: "Enter App Group name:",
@@ -30,24 +30,24 @@ struct MainView: View {
 
     private var rightPanel: some View {
         VStack(alignment: .leading, spacing: 0) {
-            AppGroupConfigurationView(viewModel: viewModel)
-                .frame(height: 85)
-
             if viewModel.selectedAppGroup != nil {
+                AppGroupConfigurationView(viewModel: viewModel)
+                    .frame(height: 85)
                 assignedApps
             } else {
-                Spacer()
-
-                HStack {
+                VStack(alignment: .leading) {
                     Spacer()
-                    Button(action: {
-                        openWindow(id: "settings")
-                    }, label: {
-                        Image(systemName: "gearshape")
-                            .foregroundColor(.primary)
-                    }).keyboardShortcut(",")
+                        .frame(width: 200, height: 250)
+                    HStack {
+                        Spacer()
+                        Button(action: {
+                            openWindow(id: "settings")
+                        }, label: {
+                            Image(systemName: "gearshape")
+                                .foregroundColor(.primary)
+                        }).keyboardShortcut(",")
+                    }
                 }
-                .frame(width: 200)
             }
         }
     }
@@ -65,7 +65,7 @@ struct MainView: View {
                     appGroup: $appGroup
                 )
             }
-            .frame(width: 200, height: 350)
+            .frame(width: 200, height: 250)
             .tahoeBorder()
 
             HStack {
@@ -97,7 +97,7 @@ struct MainView: View {
                     app: app
                 )
             }
-            .frame(width: 200, height: 265)
+            .frame(width: 200, height: 165)
             .tahoeBorder()
 
             HStack {
