@@ -15,7 +15,7 @@ struct AppGroupCell: View {
     @FocusState private var isTextFieldFocused: Bool
     @Binding var selectedApps: Set<MacApp>
     @Binding var appGroup: AppGroup
-    let isSelected: Bool
+    let selectedAppGroups: Set<AppGroup>
 
     let appGroupManager: AppGroupManager = AppDependencies.shared.appGroupManager
     let appGroupRepository: AppGroupRepository = AppDependencies.shared.appGroupRepository
@@ -47,7 +47,8 @@ struct AppGroupCell: View {
 
                 Spacer()
 
-                if isSelected {
+                // Check selection directly in body - updates instantly on selection change
+                if selectedAppGroups.contains(appGroup) {
                     Button(action: {
                         isEditing = true
                     }) {
