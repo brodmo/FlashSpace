@@ -36,11 +36,12 @@ struct AppGroupConfigurationView: View {
             HStack(spacing: 4) {
                 Text("Primary App")
 
-                Image(systemName: "questionmark.circle")
-                    .foregroundColor(.secondary)
-                    .frame(width: 16, height: 16)
-                    .contentShape(Rectangle())
-                    .help("The primary app is always focused and launched if not running when activating this group")
+                ZStack {
+                    Image(systemName: "questionmark.circle")
+                        .foregroundColor(.secondary)
+                }
+                .frame(width: 16, height: 16)
+                .help("The primary app is always focused and launched if not running when activating this group")
 
                 Spacer()
 
