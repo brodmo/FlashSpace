@@ -31,7 +31,7 @@ struct FlashCutApp: App {
         .defaultPosition(.center)
 
         Window("Settings", id: "settings") {
-            SettingsView()
+            SettingsWindow()
                 .onAppear {
                     showDockIcon()
                 }

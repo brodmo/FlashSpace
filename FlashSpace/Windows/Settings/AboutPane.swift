@@ -1,5 +1,5 @@
 //
-//  AboutSettingsView.swift
+//  AboutPane.swift
 //
 //  Created by Wojciech Kulik on 18/02/2025.
 //  Copyright © 2025 Wojciech Kulik. All rights reserved.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct AboutSettingsView: View {
+struct AboutPane: View {
     var body: some View {
         Form {
             Section("FlashCut") {

@@ -47,3 +47,29 @@ private extension ConfigSerializer {
             .appendingPathExtension("toml")
     }
 }
+
+// MARK: - Config Encoder/Decoder Protocols
+
+protocol ConfigEncoder {
+    func encode(_ value: some Encodable) throws -> Data
+}
+
+protocol ConfigDecoder {
+    func decode<T>(_ type: T.Type, from data: Data) throws -> T where T: Decodable
+}
+
+// MARK: - TOML Conformance
+
+extension TOMLEncoder: ConfigEncoder {
+    func encode(_ value: some Encodable) throws -> Data {
+        let toml: String = try encode(value)
+        return toml.data(using: .utf8) ?? Data()
+    }
+}
+
+extension TOMLDecoder: ConfigDecoder {
+    func decode<T>(_ type: T.Type, from data: Data) throws -> T where T: Decodable {
+        let toml = String(data: data, encoding: .utf8) ?? ""
+        return try decode(T.self, from: toml)
+    }
+}

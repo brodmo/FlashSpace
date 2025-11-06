@@ -1,5 +1,5 @@
 //
-//  SettingsView.swift
+//  SettingsWindow.swift
 //
 //  Created by Wojciech Kulik on 23/01/2025.
 //  Copyright © 2025 Wojciech Kulik. All rights reserved.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SettingsView: View {
+struct SettingsWindow: View {
     @State private var selectedTab = "General"
 
     var body: some View {
@@ -48,11 +48,11 @@ struct SettingsView: View {
     private var details: some View {
         switch selectedTab {
         case "General":
-            GeneralSettingsView()
+            GeneralPane()
         case "AppGroups":
-            AppGroupsSettingsView()
+            AppGroupsPane()
         case "About":
-            AboutSettingsView()
+            AboutPane()
         default:
             EmptyView()
         }
