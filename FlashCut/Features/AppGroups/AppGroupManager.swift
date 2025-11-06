@@ -88,7 +88,6 @@ final class AppGroupManager: ObservableObject {
             }
         }
     }
-
 }
 
 // MARK: - AppGroup Actions

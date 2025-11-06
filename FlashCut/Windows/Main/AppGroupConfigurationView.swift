@@ -5,8 +5,8 @@
 //  Copyright © 2025 Wojciech Kulik. All rights reserved.
 //
 
-import SwiftUI
 import AppKit
+import SwiftUI
 
 struct AppGroupConfigurationView: View {
     @ObservedObject var viewModel: MainViewModel
