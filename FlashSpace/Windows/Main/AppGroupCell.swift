@@ -48,9 +48,13 @@ struct AppGroupCell: View {
                     Spacer()
                 }
                 .contentShape(Rectangle())
-                .onTapGesture(count: 2) {
-                    isEditing = true
-                }
+                .simultaneousGesture(
+                    TapGesture().onEnded { _ in
+                        if isSelected {
+                            isEditing = true
+                        }
+                    }
+                )
             }
         }
         .dropDestination(for: MacAppWithAppGroup.self) { apps, _ in
