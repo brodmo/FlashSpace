@@ -1,5 +1,5 @@
 //
-//  GeneralPane.swift
+//  GeneralSettingsView.swift
 //
 //  Created by Wojciech Kulik on 23/01/2025.
 //  Copyright © 2025 Wojciech Kulik. All rights reserved.
@@ -8,7 +8,7 @@
 import AppKit
 import SwiftUI
 
-struct GeneralPane: View {
+struct GeneralSettingsView: View {
     @StateObject var settings = AppDependencies.shared.generalSettings
     @State var isAutostartEnabled = false
 

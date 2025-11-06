@@ -1,5 +1,5 @@
 //
-//  AppGroupsPane.swift
+//  AppGroupsSettingsView.swift
 //
 //  Created by Wojciech Kulik on 24/01/2025.
 //  Copyright © 2025 Wojciech Kulik. All rights reserved.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct AppGroupsPane: View {
+struct AppGroupsSettingsView: View {
     @StateObject var settings = AppDependencies.shared.appGroupSettings
     @StateObject var appManagerSettings = AppDependencies.shared.appManagerSettings
 
