@@ -30,6 +30,14 @@ struct MainView: View {
 
     private var rightPanel: some View {
         VStack(alignment: .leading, spacing: 16.0) {
+            AppGroupConfigurationView(viewModel: viewModel)
+
+            if viewModel.selectedAppGroup != nil {
+                assignedApps
+            }
+
+            Spacer()
+
             HStack {
                 Spacer()
                 Button(action: {
@@ -39,9 +47,6 @@ struct MainView: View {
                         .foregroundColor(.primary)
                 }).keyboardShortcut(",")
             }
-
-            AppGroupConfigurationView(viewModel: viewModel)
-            assignedApps
         }
     }
 
@@ -52,10 +57,10 @@ struct MainView: View {
                 id: \.self,
                 editActions: .move,
                 selection: $viewModel.selectedAppGroups
-            ) { binding in
+            ) { $appGroup in
                 AppGroupCell(
                     selectedApps: $viewModel.selectedApps,
-                    appGroup: binding.wrappedValue
+                    appGroup: $appGroup
                 )
             }
             .frame(width: 200, height: 350)

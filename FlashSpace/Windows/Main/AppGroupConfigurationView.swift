@@ -24,17 +24,9 @@ struct AppGroupConfigurationView: View {
     }
 
     private var configuration: some View {
-        VStack(alignment: .leading, spacing: 8.0) {
-            // Name and Shortcut on one line
-            HStack {
-                TextField("Name", text: $viewModel.appGroupName)
-                    .onSubmit(viewModel.saveAppGroup)
-                    .frame(maxWidth: .infinity)
-
-                HotKeyControl(shortcut: $viewModel.appGroupShortcut)
-                    .fixedSize()
-            }
-            .padding(.bottom, 8)
+        VStack(alignment: .leading, spacing: 12.0) {
+            // Shortcut
+            HotKeyControl(shortcut: $viewModel.appGroupShortcut)
 
             // Primary App with tooltip
             HStack(spacing: 4) {
