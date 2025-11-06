@@ -30,8 +30,8 @@ struct SettingsView: View {
                     .tag("General")
                 Label("App Groups", systemImage: "square.stack.3d.up")
                     .tag("AppGroups")
-                Label("Focus Manager", systemImage: "macwindow.on.rectangle")
-                    .tag("Focus")
+                Label("App Manager", systemImage: "macwindow.on.rectangle")
+                    .tag("AppManager")
                 Label("Configuration File", systemImage: "doc.text")
                     .tag("Configuration")
                 Label("Acknowledgements", systemImage: "info.circle")
@@ -55,8 +55,8 @@ struct SettingsView: View {
         switch selectedTab {
         case "General":
             GeneralSettingsView()
-        case "Focus":
-            FocusSettingsView()
+        case "AppManager":
+            AppManagerSettingsView()
         case "AppGroups":
             AppGroupsSettingsView()
         case "Configuration":

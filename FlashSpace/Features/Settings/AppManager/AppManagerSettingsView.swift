@@ -1,5 +1,5 @@
 //
-//  FocusSettingsView.swift
+//  AppManagerSettingsView.swift
 //
 //  Created by Wojciech Kulik on 23/01/2025.
 //  Copyright © 2025 Wojciech Kulik. All rights reserved.
@@ -7,17 +7,17 @@
 
 import SwiftUI
 
-struct FocusSettingsView: View {
-    @StateObject private var settings = AppDependencies.shared.focusManagerSettings
+struct AppManagerSettingsView: View {
+    @StateObject private var settings = AppDependencies.shared.appManagerSettings
 
     var body: some View {
         Form {
-            Section("App Cycling") {
-                hotkey("Focus Next App", for: $settings.focusNextAppGroupApp)
-                hotkey("Focus Previous App", for: $settings.focusPreviousAppGroupApp)
+            Section("App Switching") {
+                hotkey("Switch to Next App in Group", for: $settings.switchToNextAppInGroup)
+                hotkey("Switch to Previous App in Group", for: $settings.switchToPreviousAppInGroup)
             }
         }
         .formStyle(.grouped)
-        .navigationTitle("Focus Manager")
+        .navigationTitle("App Manager")
     }
 }

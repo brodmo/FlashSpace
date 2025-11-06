@@ -17,11 +17,11 @@ struct AppDependencies {
     let hotKeysMonitor: HotKeysMonitorProtocol = GlobalShortcutMonitor.shared
     let hotKeysManager: HotKeysManager
 
-    let focusManager: FocusManager
+    let appManager: AppManager
 
     let settingsRepository: SettingsRepository
     let generalSettings = GeneralSettings()
-    let focusManagerSettings = FocusManagerSettings()
+    let appManagerSettings = AppManagerSettings()
     let appGroupSettings = AppGroupSettings()
 
     let autostartService = AutostartService()
@@ -29,7 +29,7 @@ struct AppDependencies {
     private init() {
         self.settingsRepository = SettingsRepository(
             generalSettings: generalSettings,
-            focusManagerSettings: focusManagerSettings,
+            appManagerSettings: appManagerSettings,
             appGroupSettings: appGroupSettings
         )
         self.appGroupRepository = AppGroupRepository()
@@ -42,15 +42,15 @@ struct AppDependencies {
             appGroupRepository: appGroupRepository,
             settingsRepository: settingsRepository
         )
-        self.focusManager = FocusManager(
+        self.appManager = AppManager(
             appGroupRepository: appGroupRepository,
             appGroupManager: appGroupManager,
-            focusManagerSettings: focusManagerSettings
+            appManagerSettings: appManagerSettings
         )
         self.hotKeysManager = HotKeysManager(
             hotKeysMonitor: GlobalShortcutMonitor.shared,
             appGroupHotKeys: appGroupHotKeys,
-            focusManager: focusManager,
+            appManager: appManager,
             settingsRepository: settingsRepository
         )
     }

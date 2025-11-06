@@ -16,18 +16,18 @@ final class HotKeysManager {
 
     private let hotKeysMonitor: HotKeysMonitorProtocol
     private let appGroupHotKeys: AppGroupHotKeys
-    private let focusManager: FocusManager
+    private let appManager: AppManager
     private let settingsRepository: SettingsRepository
 
     init(
         hotKeysMonitor: HotKeysMonitorProtocol,
         appGroupHotKeys: AppGroupHotKeys,
-        focusManager: FocusManager,
+        appManager: AppManager,
         settingsRepository: SettingsRepository
     ) {
         self.hotKeysMonitor = hotKeysMonitor
         self.appGroupHotKeys = appGroupHotKeys
-        self.focusManager = focusManager
+        self.appManager = appManager
         self.settingsRepository = settingsRepository
 
         observe()
@@ -58,14 +58,14 @@ final class HotKeysManager {
             addShortcut("AppGroup", shortcut)
         }
 
-        // Focus Manager
-        for (shortcut, action) in focusManager.getHotKeys().toShortcutPairs() {
+        // App Manager
+        for (shortcut, action) in appManager.getHotKeys().toShortcutPairs() {
             let action = ShortcutAction(shortcut: shortcut) { _ in
                 action()
                 return true
             }
             hotKeysMonitor.addAction(action, forKeyEvent: .down)
-            addShortcut("Focus Manager", shortcut)
+            addShortcut("App Manager", shortcut)
         }
 
         // General
