@@ -12,7 +12,6 @@ struct AppGroupCell: View {
     @State var isTargeted = false
     @State var isEditing = false
     @State var editedName = ""
-    @State var isHovering = false
     @FocusState private var isTextFieldFocused: Bool
     @Binding var selectedApps: Set<MacApp>
     @Binding var appGroup: AppGroup
@@ -48,7 +47,7 @@ struct AppGroupCell: View {
 
                 Spacer()
 
-                if isHovering || isSelected {
+                if isSelected {
                     Button(action: {
                         isEditing = true
                     }) {
@@ -61,9 +60,6 @@ struct AppGroupCell: View {
             }
         }
         .contentShape(Rectangle())
-        .onHover { hovering in
-            isHovering = hovering
-        }
         .dropDestination(for: MacAppWithAppGroup.self) { apps, _ in
             guard let sourceAppGroupId = apps.first?.appGroupId else { return false }
 
