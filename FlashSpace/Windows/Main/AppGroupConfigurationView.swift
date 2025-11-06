@@ -24,7 +24,7 @@ struct AppGroupConfigurationView: View {
     }
 
     private var configuration: some View {
-        VStack(alignment: .leading, spacing: 12.0) {
+        VStack(alignment: .leading, spacing: 8.0) {
             // Shortcut
             HotKeyControl(shortcut: $viewModel.appGroupShortcut)
 
