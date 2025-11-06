@@ -5,10 +5,7 @@ disabled_rules:
   - void_function_in_ternary
 
 included:
-  - FlashSpace
-
-excluded:
-  - FlashSpace/Features/Settings/Acknowledgements/Licenses.swift
+  - FlashCut
 
 line_length: 160
 

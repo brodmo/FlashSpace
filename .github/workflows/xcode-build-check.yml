@@ -22,7 +22,7 @@ jobs:
       - name: Build
         run: |
           xcodebuild clean build \
-            -project FlashSpace.xcodeproj \
-            -scheme FlashSpace \
+            -project FlashCut.xcodeproj \
+            -scheme FlashCut \
             -destination 'generic/platform=macOS' \
             -configuration Release | xcbeautify --disable-logging --renderer github-actions
