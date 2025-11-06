@@ -34,13 +34,10 @@ struct AppGroupConfigurationView: View {
             // Primary App with tooltip
             HStack(spacing: 4) {
                 Text("Primary App")
+                    .help("The primary app is always focused and launched if not running when activating this group")
 
-                Button(action: {}) {
-                    Image(systemName: "questionmark.circle")
-                        .foregroundColor(.secondary)
-                }
-                .buttonStyle(.borderless)
-                .help("The primary app is always focused and launched if not running when activating this group")
+                Image(systemName: "questionmark.circle")
+                    .foregroundColor(.secondary)
 
                 Spacer()
 
