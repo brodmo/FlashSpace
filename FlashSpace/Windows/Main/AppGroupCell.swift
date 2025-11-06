@@ -56,10 +56,12 @@ struct AppGroupCell: View {
                             .font(.system(size: 11))
                     }
                     .buttonStyle(.plain)
+                    .transition(.identity)
                 }
             }
         }
         .contentShape(Rectangle())
+        .animation(nil, value: isSelected)
         .dropDestination(for: MacAppWithAppGroup.self) { apps, _ in
             guard let sourceAppGroupId = apps.first?.appGroupId else { return false }
 
