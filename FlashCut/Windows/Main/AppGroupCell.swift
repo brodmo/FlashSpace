@@ -19,70 +19,75 @@ struct AppGroupCell: View {
     let appGroupManager: AppGroupManager = AppDependencies.shared.appGroupManager
     let appGroupRepository: AppGroupRepository = AppDependencies.shared.appGroupRepository
 
-    private var textBinding: Binding<String> {
-        Binding(
-            get: { editedName ?? appGroup.name }, // set the default value
-            set: { editedName = $0 }
-        )
-    }
-
     var body: some View {
-        HStack {
+        Group {
             if isEditing {
-                TextField("Name", text: textBinding)
-                    .textFieldStyle(.plain)
-                    .focused($isTextFieldFocused)
-                    .task {
-                        isTextFieldFocused = true
-                    }
-                    .onSubmit {
-                        saveName()
-                    }
-                    .onExitCommand {
-                        isEditing = false
-                    }
+                editingName
             } else {
-                Text(appGroup.name)
-                    .lineLimit(1)
-                    .foregroundColor(
-                        isTargeted || appGroup.apps.contains(where: \.bundleIdentifier.isEmpty)
-                            ? .errorRed
-                            : .primary
-                    )
-
-                Spacer()
+                staticName
             }
         }
         .contentShape(Rectangle())
-        .dropDestination(for: MacAppWithAppGroup.self) { apps, _ in
-            guard let sourceAppGroupId = apps.first?.appGroupId else { return false }
-
-            appGroupRepository.moveApps(
-                apps.map(\.app),
-                from: sourceAppGroupId,
-                to: appGroup.id
-            )
-            selectedApps = []
-
-            appGroupManager.activateAppGroupIfActive(sourceAppGroupId)
-            appGroupManager.activateAppGroupIfActive(appGroup.id)
-
-            return true
-        } isTargeted: {
-            isTargeted = $0
-        }
+        .dropDestination(
+            for: MacAppWithAppGroup.self,
+            action: handleDrop,
+            isTargeted: { isTargeted = $0 }
+        )
     }
 
-    private func saveName() {
-        isEditing = false
-        guard let newName = editedName else { return }
-        editedName = nil
+    private var editingName: some View {
+        let textBinding = Binding(
+            get: { editedName ?? appGroup.name }, // set the default value
+            set: { editedName = $0 }
+        )
+        return TextField("Name", text: textBinding)
+            .textFieldStyle(.plain)
+            .focused($isTextFieldFocused)
+            .task {
+                isTextFieldFocused = true
+            }
+            .onSubmit {
+                isEditing = false
+                guard let newName = editedName else { return }
+                editedName = nil
 
-        let trimmedName = newName.trimmingCharacters(in: .whitespacesAndNewlines)
-        let finalName = trimmedName.isEmpty ? "(empty)" : trimmedName
-        guard finalName != appGroup.name else { return }
+                let trimmedName = newName.trimmingCharacters(in: .whitespacesAndNewlines)
+                let finalName = trimmedName.isEmpty ? "(empty)" : trimmedName
+                guard finalName != appGroup.name else { return }
 
-        appGroup.name = finalName
-        appGroupRepository.updateAppGroup(appGroup)
+                appGroup.name = finalName
+                appGroupRepository.updateAppGroup(appGroup)
+            }
+            .onExitCommand {
+                isEditing = false
+                editedName = nil
+            }
+    }
+
+    private var staticName: some View {
+        Text(appGroup.name)
+            .lineLimit(1)
+            .frame(alignment: .leading)
+            .foregroundColor(
+                isTargeted || appGroup.apps.contains(where: \.bundleIdentifier.isEmpty)
+                    ? .errorRed
+                    : .primary
+            )
+    }
+
+    private func handleDrop(_ apps: [MacAppWithAppGroup], _ _: CGPoint) -> Bool {
+        guard let sourceAppGroupId = apps.first?.appGroupId else { return false }
+
+        appGroupRepository.moveApps(
+            apps.map(\.app),
+            from: sourceAppGroupId,
+            to: appGroup.id
+        )
+        selectedApps = []
+
+        appGroupManager.activateAppGroupIfActive(sourceAppGroupId)
+        appGroupManager.activateAppGroupIfActive(appGroup.id)
+
+        return true
     }
 }
