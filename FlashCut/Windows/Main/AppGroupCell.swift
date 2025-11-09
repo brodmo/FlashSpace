@@ -11,7 +11,7 @@ import UniformTypeIdentifiers
 struct AppGroupCell: View {
     @State var isTargeted = false
     @Binding var isEditing: Bool
-    @State var editedName = ""
+    @State var editedName: String?
     @FocusState private var isTextFieldFocused: Bool
     @Binding var selectedApps: Set<MacApp>
     @Binding var appGroup: AppGroup
@@ -19,14 +19,20 @@ struct AppGroupCell: View {
     let appGroupManager: AppGroupManager = AppDependencies.shared.appGroupManager
     let appGroupRepository: AppGroupRepository = AppDependencies.shared.appGroupRepository
 
+    private var textBinding: Binding<String> {
+        Binding(
+            get: { editedName ?? appGroup.name }, // set the default value
+            set: { editedName = $0 }
+        )
+    }
+
     var body: some View {
         HStack {
             if isEditing {
-                TextField("Name", text: $editedName)
+                TextField("Name", text: textBinding)
                     .textFieldStyle(.plain)
                     .focused($isTextFieldFocused)
                     .task {
-                        editedName = appGroup.name
                         isTextFieldFocused = true
                     }
                     .onSubmit {
@@ -69,7 +75,9 @@ struct AppGroupCell: View {
 
     private func saveName() {
         isEditing = false
-        let trimmedName = editedName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let newName = editedName else { return }
+        editedName = nil
+        let trimmedName = newName.trimmingCharacters(in: .whitespacesAndNewlines)
 
         // If empty, use a default name
         let finalName = trimmedName.isEmpty ? "(empty)" : trimmedName
