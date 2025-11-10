@@ -11,7 +11,7 @@ import UniformTypeIdentifiers
 struct AppGroupCell: View {
     @State var isTargeted = false
     @Binding var isEditing: Bool
-    @State var editedName: String?
+    @State var editedName: String = ""
     @FocusState private var isTextFieldFocused: Bool
     @Binding var selectedApps: Set<MacApp>
     @Binding var appGroup: AppGroup
@@ -37,6 +37,9 @@ struct AppGroupCell: View {
                 editButton
             }
         }
+        .onChange(of: isEditing) { _, newValue in
+            editedName = newValue ? appGroup.name : ""
+        }
         .contentShape(Rectangle())
         .dropDestination(
             for: MacAppWithAppGroup.self,
@@ -46,11 +49,7 @@ struct AppGroupCell: View {
     }
 
     private var editingName: some View {
-        let textBinding = Binding(
-            get: { editedName ?? appGroup.name }, // set the default value
-            set: { editedName = $0 }
-        )
-        return TextField("Name", text: textBinding)
+        TextField("Name", text: $editedName)
             .textFieldStyle(.plain)
             .focused($isTextFieldFocused)
             .task {
@@ -58,11 +57,7 @@ struct AppGroupCell: View {
             }
             .onSubmit {
                 isEditing = false
-                let newName = editedName
-                editedName = nil
-                guard let newName else { return }
-
-                let trimmedName = newName.trimmingCharacters(in: .whitespacesAndNewlines)
+                let trimmedName = editedName.trimmingCharacters(in: .whitespacesAndNewlines)
                 guard !trimmedName.isEmpty, trimmedName != appGroup.name else { return }
 
                 appGroup.name = trimmedName
@@ -70,7 +65,6 @@ struct AppGroupCell: View {
             }
             .onExitCommand {
                 isEditing = false
-                editedName = nil
             }
     }
 
