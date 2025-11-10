@@ -9,16 +9,19 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct AppGroupCell: View {
+    @ObservedObject var viewModel: MainViewModel
     @State var isTargeted = false
-    @Binding var isEditing: Bool
     @State var editedName: String = ""
     @FocusState private var isTextFieldFocused: Bool
-    @Binding var selectedApps: Set<MacApp>
     @Binding var appGroup: AppGroup
     let isSelected: Bool
 
     let appGroupManager: AppGroupManager = AppDependencies.shared.appGroupManager
     let appGroupRepository: AppGroupRepository = AppDependencies.shared.appGroupRepository
+
+    var isEditing: Bool {
+        viewModel.editingAppGroupId == appGroup.id
+    }
 
     var body: some View {
         HStack {
@@ -56,7 +59,7 @@ struct AppGroupCell: View {
                 isTextFieldFocused = true
             }
             .onSubmit {
-                isEditing = false
+                viewModel.editingAppGroupId = nil
                 let trimmedName = editedName.trimmingCharacters(in: .whitespacesAndNewlines)
                 guard !trimmedName.isEmpty, trimmedName != appGroup.name else { return }
 
@@ -64,13 +67,13 @@ struct AppGroupCell: View {
                 appGroupRepository.updateAppGroup(appGroup)
             }
             .onExitCommand {
-                isEditing = false
+                viewModel.editingAppGroupId = nil
             }
     }
 
     private var editButton: some View {
         Button(action: {
-            isEditing = true
+            viewModel.editingAppGroupId = appGroup.id
         }, label: {
             Image(systemName: "pencil")
                 .foregroundColor(.secondary)
@@ -87,7 +90,7 @@ struct AppGroupCell: View {
             from: sourceAppGroupId,
             to: appGroup.id
         )
-        selectedApps = []
+        viewModel.selectedApps = []
 
         appGroupManager.activateAppGroupIfActive(sourceAppGroupId)
         appGroupManager.activateAppGroupIfActive(appGroup.id)

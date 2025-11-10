@@ -11,7 +11,6 @@ import SwiftUI
 struct MainView: View {
     @StateObject var viewModel = MainViewModel()
     @Environment(\.openWindow) var openWindow
-    @State private var editingAppGroupId: UUID?
     @State private var selectedAppGroupIds: Set<UUID> = []
 
     var body: some View {
@@ -24,7 +23,6 @@ struct MainView: View {
         .onChange(of: viewModel.newlyCreatedAppGroupId) { _, newId in
             if let newId {
                 selectedAppGroupIds = [newId]
-                editingAppGroupId = newId
                 viewModel.newlyCreatedAppGroupId = nil
             }
         }
@@ -57,11 +55,7 @@ struct MainView: View {
             List(selection: $selectedAppGroupIds) {
                 ForEach($viewModel.appGroups) { $appGroup in
                     AppGroupCell(
-                        isEditing: Binding(
-                            get: { editingAppGroupId == appGroup.id },
-                            set: { if $0 { editingAppGroupId = appGroup.id } else { editingAppGroupId = nil } }
-                        ),
-                        selectedApps: $viewModel.selectedApps,
+                        viewModel: viewModel,
                         appGroup: $appGroup,
                         isSelected: selectedAppGroupIds.contains(appGroup.id)
                     )
@@ -73,8 +67,9 @@ struct MainView: View {
             }
             .onChange(of: selectedAppGroupIds) { _, newIds in
                 viewModel.selectedAppGroups = Set(viewModel.appGroups.filter { newIds.contains($0.id) })
-                if let editingId = editingAppGroupId, !newIds.contains(editingId) {
-                    editingAppGroupId = nil
+                // Clear editing if the edited group is no longer selected
+                if let editingId = viewModel.editingAppGroupId, !newIds.contains(editingId) {
+                    viewModel.editingAppGroupId = nil
                 }
             }
             .tahoeBorder()

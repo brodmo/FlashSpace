@@ -31,6 +31,7 @@ final class MainViewModel: ObservableObject {
     }
 
     @Published var newlyCreatedAppGroupId: UUID?
+    @Published var editingAppGroupId: UUID?
 
     var targetAppOptions: [MacApp] {
         [AppConstants.lastFocusedOption] + (appGroupApps ?? [])
@@ -152,6 +153,7 @@ extension MainViewModel {
 
         if let newAppGroup = appGroups.last {
             selectedAppGroup = newAppGroup
+            editingAppGroupId = newAppGroup.id
             newlyCreatedAppGroupId = newAppGroup.id
         }
     }
