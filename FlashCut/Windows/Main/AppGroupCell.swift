@@ -52,7 +52,7 @@ struct AppGroupCell: View {
         TextField("Name", text: $editedName)
             .textFieldStyle(.plain)
             .focused($isTextFieldFocused)
-            .task {
+            .onAppear {
                 isTextFieldFocused = true
             }
             .onSubmit {
