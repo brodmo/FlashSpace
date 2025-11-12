@@ -29,9 +29,6 @@ final class MainViewModel: ObservableObject {
         }
     }
 
-    @Published var newlyCreatedAppGroupId: UUID?
-    @Published var editingAppGroupId: UUID?
-
     private var currentlyLoadedGroupId: UUID?
 
     func getSelectedAppGroup(id: UUID?) -> AppGroup? {
@@ -109,8 +106,6 @@ extension MainViewModel {
         appGroups = appGroupRepository.appGroups
 
         if let newAppGroup = appGroups.last {
-            editingAppGroupId = newAppGroup.id
-            newlyCreatedAppGroupId = newAppGroup.id
             return newAppGroup.id
         }
         return nil

@@ -6,10 +6,15 @@ struct MainView: View {
     @Environment(\.openWindow) var openWindow
     @State private var selectedAppGroupIds: Set<UUID> = []
     @State private var selectedApps: Set<MacApp> = []
+    @State private var editingAppGroupId: UUID?
 
-    private var selectedAppGroup: AppGroup? {
+    private var currentAppGroupId: UUID? {
         guard selectedAppGroupIds.count == 1, let id = selectedAppGroupIds.first else { return nil }
-        return viewModel.getSelectedAppGroup(id: id)
+        return id
+    }
+
+    private var currentApps: [MacApp] {
+        viewModel.getSelectedAppGroup(id: currentAppGroupId)?.apps ?? []
     }
 
     var body: some View {
@@ -19,20 +24,14 @@ struct MainView: View {
         }
         .padding()
         .frame(minWidth: 450, minHeight: 350)
-        .onChange(of: viewModel.newlyCreatedAppGroupId) { _, newId in
-            if let newId {
-                selectedAppGroupIds = [newId]
-                viewModel.newlyCreatedAppGroupId = nil
-            }
-        }
     }
 
     private var rightPanel: some View {
         VStack(alignment: .leading, spacing: 0) {
-            if let selectedAppGroup {
+            if currentAppGroupId != nil {
                 AppGroupConfigurationView(
                     viewModel: viewModel,
-                    apps: selectedAppGroup.apps
+                    apps: currentApps
                 )
                 .padding(.bottom, 12)
                 assignedApps
@@ -59,7 +58,8 @@ struct MainView: View {
                     AppGroupCell(
                         viewModel: viewModel,
                         appGroup: $appGroup,
-                        isSelected: selectedAppGroupIds.count == 1 && selectedAppGroupIds.contains(appGroup.id)
+                        isCurrent: currentAppGroupId == appGroup.id,
+                        editingAppGroupId: $editingAppGroupId
                     )
                     .tag(appGroup.id)
                 }
@@ -68,11 +68,6 @@ struct MainView: View {
                 }
             }
             .onChange(of: selectedAppGroupIds) { oldIds, newIds in
-                // Clear editing if the edited group is no longer selected
-                if let editingId = viewModel.editingAppGroupId, !newIds.contains(editingId) {
-                    viewModel.editingAppGroupId = nil
-                }
-
                 // Clear app selection when group selection changes
                 if newIds.count != 1 {
                     selectedApps = []
@@ -90,19 +85,20 @@ struct MainView: View {
                 Button(action: {
                     if let newId = viewModel.addAppGroup() {
                         selectedAppGroupIds = [newId]
+                        editingAppGroupId = newId
                     }
-                }) {
+                }, label: {
                     Image(systemName: "plus")
                         .frame(height: 16)
-                }
+                })
 
                 Button(action: {
                     viewModel.deleteAppGroups(ids: selectedAppGroupIds)
                     selectedAppGroupIds = []
-                }) {
+                }, label: {
                     Image(systemName: "trash")
                         .frame(height: 16)
-                }
+                })
                 .disabled(selectedAppGroupIds.isEmpty)
 
                 Spacer()
@@ -114,12 +110,12 @@ struct MainView: View {
     private var assignedApps: some View {
         VStack(alignment: .leading) {
             List(
-                selectedAppGroup?.apps ?? [],
+                currentApps,
                 id: \.self,
                 selection: $selectedApps
             ) { app in
                 AppCell(
-                    appGroupId: selectedAppGroup?.id ?? UUID(),
+                    appGroupId: currentAppGroupId ?? UUID(),
                     app: app
                 )
             }
@@ -127,16 +123,16 @@ struct MainView: View {
 
             HStack {
                 Button(action: {
-                    if let groupId = selectedAppGroup?.id {
+                    if let groupId = currentAppGroupId {
                         viewModel.addApp(toGroupId: groupId)
                     }
                 }) {
                     Image(systemName: "plus")
                         .frame(height: 16)
-                }.disabled(selectedAppGroup == nil)
+                }.disabled(currentAppGroupId == nil)
 
                 Button(action: {
-                    if let groupId = selectedAppGroup?.id {
+                    if let groupId = currentAppGroupId {
                         viewModel.deleteApps(selectedApps, fromGroupId: groupId)
                         selectedApps = []
                     }
