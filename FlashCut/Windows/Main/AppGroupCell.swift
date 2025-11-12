@@ -11,8 +11,8 @@ import UniformTypeIdentifiers
 struct AppGroupCell: View {
     @ObservedObject var viewModel: MainViewModel
     @State var isTargeted = false
-    @State var editedName: String = ""
-    @FocusState private var isTextFieldFocused: Bool
+    @State var visibleName: String = ""
+    @FocusState private var isEditing: Bool
     @Binding var appGroup: AppGroup
     let isSelected: Bool
 
@@ -22,18 +22,19 @@ struct AppGroupCell: View {
     var body: some View {
         HStack(spacing: 4) {
             nameField
-            if isSelected, !isTextFieldFocused {
+            if isSelected, !isEditing {
                 editButton
             }
         }
         .onAppear {
-            editedName = appGroup.name
-            // new app group cell must be focused immediately
+            visibleName = appGroup.name
+            // new app group cell is edited immediately
             if viewModel.editingAppGroupId == appGroup.id {
-                isTextFieldFocused = true
+                isEditing = true
             }
         }
-        .onChange(of: isTextFieldFocused) { _, isFocused in
+        // isEditing is set to false automatically when edit is finished
+        .onChange(of: isEditing) { _, isFocused in
             viewModel.editingAppGroupId = isFocused ? appGroup.id : nil
         }
         .contentShape(Rectangle())
@@ -45,29 +46,29 @@ struct AppGroupCell: View {
     }
 
     private var nameField: some View {
-        TextField("Name", text: $editedName)
+        TextField("Name", text: $visibleName)
             .textFieldStyle(.plain)
             .lineLimit(1)
-            .fixedSize(horizontal: !isTextFieldFocused, vertical: false)
-            .focused($isTextFieldFocused)
+            .fixedSize(horizontal: !isEditing, vertical: false)
+            .focused($isEditing)
             .foregroundColor(
                 isTargeted || appGroup.apps.contains(where: \.bundleIdentifier.isEmpty)
                     ? .errorRed
                     : .primary
             )
             .onSubmit {
-                let trimmedName = editedName.trimmingCharacters(in: .whitespacesAndNewlines)
+                let trimmedName = visibleName.trimmingCharacters(in: .whitespacesAndNewlines)
                 let finalName = trimmedName.isEmpty ? "(empty)" : trimmedName
                 guard finalName != appGroup.name else { return }
                 appGroup.name = finalName
                 appGroupRepository.updateAppGroup(appGroup)
-                editedName = finalName
+                visibleName = finalName
             }
     }
 
     private var editButton: some View {
         Button(action: {
-            isTextFieldFocused = true
+            isEditing = true
         }, label: {
             Image(systemName: "pencil")
                 .foregroundColor(.secondary)
