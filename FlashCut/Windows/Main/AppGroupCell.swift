@@ -20,10 +20,9 @@ struct AppGroupCell: View {
     let appGroupRepository: AppGroupRepository = AppDependencies.shared.appGroupRepository
 
     var body: some View {
-        HStack {
+        HStack(spacing: 4) {
             nameField
-            Spacer()
-            if isSelected {
+            if isSelected, !isTextFieldFocused {
                 editButton
             }
         }
@@ -61,6 +60,7 @@ struct AppGroupCell: View {
         TextField("Name", text: $editedName)
             .textFieldStyle(.plain)
             .lineLimit(1)
+            .fixedSize(horizontal: !isTextFieldFocused, vertical: false)
             .focused($isTextFieldFocused)
             .foregroundColor(
                 isTargeted || appGroup.apps.contains(where: \.bundleIdentifier.isEmpty)
