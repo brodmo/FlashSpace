@@ -1,10 +1,3 @@
-//
-//  MainView.swift
-//  FlashSpace
-//
-//  Created by Wojciech Kulik on 19/01/2025.
-//
-
 import AppKit
 import SwiftUI
 

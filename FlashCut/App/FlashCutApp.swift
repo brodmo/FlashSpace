@@ -1,10 +1,3 @@
-//
-//  FlashCutApp.swift
-//  FlashCut
-//
-//  Created by Wojciech Kulik on 19/01/2025.
-//
-
 import AppKit
 import Combine
 import SwiftUI

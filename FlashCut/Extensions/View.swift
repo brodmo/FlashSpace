@@ -1,10 +1,3 @@
-//
-//  View.swift
-//
-//  Created by Wojciech Kulik on 25/01/2025.
-//  Copyright © 2025 Wojciech Kulik. All rights reserved.
-//
-
 import SwiftUI
 
 extension View {

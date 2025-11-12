@@ -1,10 +1,3 @@
-//
-//  AppGroupsSettingsView.swift
-//
-//  Created by Wojciech Kulik on 24/01/2025.
-//  Copyright © 2025 Wojciech Kulik. All rights reserved.
-//
-
 import SwiftUI
 
 struct AppGroupsSettingsView: View {
