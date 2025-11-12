@@ -68,15 +68,11 @@ struct AppGroupCell: View {
                     : .primary
             )
             .onSubmit {
-                isTextFieldFocused = false
                 let trimmedName = editedName.trimmingCharacters(in: .whitespacesAndNewlines)
                 let finalName = trimmedName.isEmpty ? "(empty)" : trimmedName
                 guard finalName != appGroup.name else { return }
                 appGroup.name = finalName
                 appGroupRepository.updateAppGroup(appGroup)
-            }
-            .onExitCommand {
-                isTextFieldFocused = false
             }
     }
 
