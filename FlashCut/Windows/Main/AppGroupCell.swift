@@ -25,19 +25,18 @@ struct AppGroupCell: View {
             if isSelected, !isEditing {
                 editButton
             }
-        }
-        .onAppear {
-            visibleName = appGroup.name
-            // new app group cell is edited immediately
-            if viewModel.editingAppGroupId == appGroup.id {
-                isEditing = true
-            }
-        }
-        // isEditing is set to false automatically when edit is finished
-        .onChange(of: isEditing) { _, isFocused in
-            viewModel.editingAppGroupId = isFocused ? appGroup.id : nil
+            Spacer() // Make sure the drop target extends all the way
         }
         .contentShape(Rectangle())
+        .foregroundColor(
+            appGroup.apps.contains(where: \.bundleIdentifier.isEmpty) ? .errorRed : .primary
+        )
+        .listRowBackground(
+            RoundedRectangle(cornerRadius: 6)
+                .fill(Color.accentColor.opacity(0.2))
+                .padding(.horizontal, 10) // Match list selection
+                .opacity(isTargeted ? 1 : 0)
+        )
         .dropDestination(
             for: MacAppWithAppGroup.self,
             action: handleDrop,
@@ -51,11 +50,17 @@ struct AppGroupCell: View {
             .lineLimit(1)
             .fixedSize(horizontal: !isEditing, vertical: false)
             .focused($isEditing)
-            .foregroundColor(
-                isTargeted || appGroup.apps.contains(where: \.bundleIdentifier.isEmpty)
-                    ? .errorRed
-                    : .primary
-            )
+            .onAppear {
+                visibleName = appGroup.name
+                // new app group cell is edited immediately
+                if viewModel.editingAppGroupId == appGroup.id {
+                    isEditing = true
+                }
+            }
+            // isEditing is set to false automatically when edit is finished
+            .onChange(of: isEditing) { _, isFocused in
+                viewModel.editingAppGroupId = isFocused ? appGroup.id : nil
+            }
             .onSubmit {
                 let trimmedName = visibleName.trimmingCharacters(in: .whitespacesAndNewlines)
                 let finalName = trimmedName.isEmpty ? "(empty)" : trimmedName
