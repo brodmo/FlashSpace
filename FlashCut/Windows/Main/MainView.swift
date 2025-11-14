@@ -65,7 +65,7 @@ struct MainView: View {
                     .tag(appGroup)
                 }
                 .onMove { from, to in
-                    viewModel.appGroups.move(fromOffsets: from, toOffset: to)
+                    viewModel.reorderAppGroups(from: from, to: to)
                 }
             }
             .onChange(of: selectedAppGroups) { oldGroups, newGroups in

@@ -3,35 +3,23 @@ import Combine
 import SwiftUI
 
 final class MainViewModel: ObservableObject {
-    @Published var appGroups: [AppGroup] = [] {
-        didSet {
-            guard appGroups.count == oldValue.count,
-                  appGroups.map(\.id) != oldValue.map(\.id) else { return }
-
-            appGroupRepository.reorderAppGroups(newOrder: appGroups.map(\.id))
-        }
+    var appGroups: [AppGroup] {
+        appGroupRepository.appGroups
     }
 
-    private var cancellables: Set<AnyCancellable> = []
+    private var cancellables = Set<AnyCancellable>()
 
     private let appGroupManager = AppDependencies.shared.appGroupManager
     private let appGroupRepository = AppDependencies.shared.appGroupRepository
     private let appGroupSettings = AppDependencies.shared.appGroupSettings
 
     init() {
-        self.appGroups = appGroupRepository.appGroups
-        observe()
-    }
-
-    private func observe() {
-        NotificationCenter.default
-            .publisher(for: .appsListChanged)
-            .sink { [weak self] _ in self?.reloadAppGroups() }
+        // Observe repository changes and trigger view updates
+        appGroupRepository.$appGroups
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
             .store(in: &cancellables)
-    }
-
-    private func reloadAppGroups() {
-        appGroups = appGroupRepository.appGroups
     }
 }
 
@@ -50,7 +38,6 @@ extension MainViewModel {
 
     func addAppGroup(_ appGroup: AppGroup) {
         appGroupRepository.addAppGroup(appGroup)
-        appGroups = appGroupRepository.appGroups
     }
 
     func deleteAppGroups(_ groups: Set<AppGroup>) {
@@ -58,7 +45,12 @@ extension MainViewModel {
 
         let ids = Set(groups.map(\.id))
         appGroupRepository.deleteAppGroups(ids: ids)
-        appGroups = appGroupRepository.appGroups
+    }
+
+    func reorderAppGroups(from: IndexSet, to: Int) {
+        var reordered = appGroups
+        reordered.move(fromOffsets: from, toOffset: to)
+        appGroupRepository.reorderAppGroups(newOrder: reordered.map(\.id))
     }
 
     func addApp(to group: AppGroup) {
