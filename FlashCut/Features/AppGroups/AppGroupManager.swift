@@ -135,16 +135,18 @@ extension AppGroupManager {
     func activateRecentAppGroup() {
         // Alt+Tab-like behavior for app groups: switch to previous appGroup
         guard let previous = previousActivatedAppGroup else { return }
-        guard let updatedAppGroup = appGroupRepository.findAppGroup(with: previous.id) else { return }
+        // Verify the appGroup still exists in the repository
+        guard appGroupRepository.findAppGroup(with: previous.id) != nil else { return }
 
-        activateAppGroup(updatedAppGroup, setFocus: true)
+        activateAppGroup(previous, setFocus: true)
     }
 
     func activateAppGroupIfActive(_ appGroupId: AppGroupID) {
         // Simplified: just re-activate if it was the last one
-        guard lastActivatedAppGroup?.id == appGroupId else { return }
-        guard let updatedAppGroup = appGroupRepository.findAppGroup(with: appGroupId) else { return }
+        guard let lastActivated = lastActivatedAppGroup, lastActivated.id == appGroupId else { return }
+        // Verify the appGroup still exists in the repository
+        guard appGroupRepository.findAppGroup(with: appGroupId) != nil else { return }
 
-        activateAppGroup(updatedAppGroup, setFocus: false)
+        activateAppGroup(lastActivated, setFocus: false)
     }
 }

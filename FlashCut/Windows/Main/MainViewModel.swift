@@ -92,16 +92,13 @@ extension MainViewModel {
 
         guard !selectedAppGroup.apps.containsApp(with: appBundleId) else { return }
 
-        appGroupRepository.addApp(
-            to: selectedAppGroup.id,
-            app: .init(
-                name: appName,
-                bundleIdentifier: appBundleId,
-                iconPath: appUrl.iconPath
-            )
+        let newApp = MacApp(
+            name: appName,
+            bundleIdentifier: appBundleId,
+            iconPath: appUrl.iconPath
         )
-
-        appGroups = appGroupRepository.appGroups
+        selectedAppGroup.apps.append(newApp)
+        appGroupRepository.save()
 
         appGroupManager.activateAppGroupIfActive(selectedAppGroup.id)
     }
@@ -109,17 +106,13 @@ extension MainViewModel {
     func deleteApps(_ apps: Set<MacApp>, fromGroupId groupId: UUID) {
         guard let selectedAppGroup = getAppGroup(id: groupId), !apps.isEmpty else { return }
 
-        let appsArray = Array(apps)
-
-        for app in appsArray {
-            appGroupRepository.deleteApp(
-                from: selectedAppGroup.id,
-                app: app,
-                notify: app == appsArray.last
-            )
+        for app in apps {
+            if selectedAppGroup.targetApp == app {
+                selectedAppGroup.targetApp = nil
+            }
+            selectedAppGroup.apps.removeAll { $0 == app }
         }
-
-        appGroups = appGroupRepository.appGroups
+        appGroupRepository.save()
 
         appGroupManager.activateAppGroupIfActive(selectedAppGroup.id)
     }

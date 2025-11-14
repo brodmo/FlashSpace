@@ -36,96 +36,63 @@ final class AppGroupRepository: ObservableObject {
     }
 
     func addAppGroup(name: String) {
-        let appGroup = AppGroup(
-            id: .init(),
-            name: name,
-            activateShortcut: nil,
-            apps: []
-        )
+        let appGroup = AppGroup(name: name)
         appGroups.append(appGroup)
-        notifyAboutChanges()
+        save()
     }
 
     func addAppGroup(_ appGroup: AppGroup) {
         appGroups.append(appGroup)
-        notifyAboutChanges()
-    }
-
-    func updateAppGroup(_ appGroup: AppGroup) {
-        guard let appGroupIndex = appGroups.firstIndex(where: { $0.id == appGroup.id }) else { return }
-
-        appGroups[appGroupIndex] = appGroup
-        notifyAboutChanges()
-        AppDependencies.shared.hotKeysManager.refresh()
+        save()
     }
 
     func deleteAppGroup(id: AppGroupID) {
         appGroups.removeAll { $0.id == id }
-        notifyAboutChanges()
+        save()
     }
 
     func deleteAppGroups(ids: Set<AppGroupID>) {
         appGroups.removeAll { ids.contains($0.id) }
-        notifyAboutChanges()
-    }
-
-    func addApp(to appGroupId: AppGroupID, app: MacApp) {
-        guard let appGroupIndex = appGroups.firstIndex(where: { $0.id == appGroupId }) else { return }
-        guard !appGroups[appGroupIndex].apps.contains(app) else { return }
-
-        appGroups[appGroupIndex].apps.append(app)
-        notifyAboutChanges()
-    }
-
-    func deleteApp(from appGroupId: AppGroupID, app: MacApp, notify: Bool = true) {
-        guard let appGroupIndex = appGroups.firstIndex(where: { $0.id == appGroupId }) else { return }
-
-        if appGroups[appGroupIndex].targetApp == app {
-            appGroups[appGroupIndex].targetApp = nil
-        }
-
-        appGroups[appGroupIndex].apps.removeAll { $0 == app }
-        if notify { notifyAboutChanges() }
+        save()
     }
 
     func deleteAppFromAllAppGroups(app: MacApp) {
-        for (index, var appGroup) in appGroups.enumerated() {
+        for appGroup in appGroups {
             appGroup.apps.removeAll { $0 == app }
             if appGroup.targetApp == app {
                 appGroup.targetApp = nil
             }
-
-            appGroups[index] = appGroup
         }
-        notifyAboutChanges()
+        save()
     }
 
     func reorderAppGroups(newOrder: [AppGroupID]) {
         let map = newOrder.enumerated().reduce(into: [AppGroupID: Int]()) { $0[$1.element] = $1.offset }
         appGroups = appGroups.sorted { map[$0.id] ?? 0 < map[$1.id] ?? 0 }
-        notifyAboutChanges()
+        save()
     }
 
     func moveApps(_ apps: [MacApp], from sourceAppGroupId: AppGroupID, to targetAppGroupId: AppGroupID) {
-        guard let sourceAppGroupIndex = appGroups.firstIndex(where: { $0.id == sourceAppGroupId }),
-              let targetAppGroupIndex = appGroups.firstIndex(where: { $0.id == targetAppGroupId }) else { return }
+        guard let sourceAppGroup = appGroups.first(where: { $0.id == sourceAppGroupId }),
+              let targetAppGroup = appGroups.first(where: { $0.id == targetAppGroupId }) else { return }
 
-        if let targetApp = appGroups[sourceAppGroupIndex].targetApp, apps.contains(targetApp) {
-            appGroups[sourceAppGroupIndex].targetApp = nil
+        if let targetApp = sourceAppGroup.targetApp, apps.contains(targetApp) {
+            sourceAppGroup.targetApp = nil
         }
 
-        let targetAppBundleIds = appGroups[targetAppGroupIndex].apps.map(\.bundleIdentifier).asSet
+        let targetAppBundleIds = targetAppGroup.apps.map(\.bundleIdentifier).asSet
         let appsToAdd = apps.filter { !targetAppBundleIds.contains($0.bundleIdentifier) }
 
-        appGroups[sourceAppGroupIndex].apps.removeAll { apps.contains($0) }
-        appGroups[targetAppGroupIndex].apps.append(contentsOf: appsToAdd)
+        sourceAppGroup.apps.removeAll { apps.contains($0) }
+        targetAppGroup.apps.append(contentsOf: appsToAdd)
 
-        notifyAboutChanges()
+        save()
         NotificationCenter.default.post(name: .appsListChanged, object: nil)
     }
 
-    private func notifyAboutChanges() {
+    func save() {
         saveAppGroups()
         appGroupsSubject.send(appGroups)
+        AppDependencies.shared.hotKeysManager.refresh()
     }
 }

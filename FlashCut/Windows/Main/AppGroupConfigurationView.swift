@@ -2,7 +2,7 @@ import AppKit
 import SwiftUI
 
 struct AppGroupConfigurationView: View {
-    @Binding var appGroup: AppGroup
+    @Bindable var appGroup: AppGroup
     let apps: [MacApp]
 
     private let appGroupRepository: AppGroupRepository = AppDependencies.shared.appGroupRepository
@@ -11,23 +11,13 @@ struct AppGroupConfigurationView: View {
         [AppConstants.mostRecentOption] + apps
     }
 
-    private var shortcutBinding: Binding<AppHotKey?> {
-        Binding(
-            get: { appGroup.activateShortcut },
-            set: { newValue in
-                appGroup.activateShortcut = newValue
-                appGroupRepository.updateAppGroup(appGroup)
-            }
-        )
-    }
-
     private var targetAppBinding: Binding<MacApp?> {
         Binding(
             get: { appGroup.targetApp ?? AppConstants.mostRecentOption },
             set: { newValue in
                 appGroup.targetApp = newValue == AppConstants.mostRecentOption ? nil : newValue
                 appGroup.openAppsOnActivation = newValue == AppConstants.mostRecentOption ? nil : true
-                appGroupRepository.updateAppGroup(appGroup)
+                appGroupRepository.save()
             }
         )
     }
@@ -44,10 +34,13 @@ struct AppGroupConfigurationView: View {
     }
 
     private var configuration: some View {
-        VStack(alignment: .leading) {
+        VStack {
             HStack(spacing: 4) {
                 Text("On")
-                HotKeyControl(shortcut: shortcutBinding)
+                HotKeyControl(shortcut: $appGroup.activateShortcut)
+                    .onChange(of: appGroup.activateShortcut) { _, _ in
+                        appGroupRepository.save()
+                    }
             }
             HStack(spacing: 4) {
                 Text("Open")
@@ -62,7 +55,6 @@ struct AppGroupConfigurationView: View {
                 .labelsHidden()
             }
         }
-        .padding(.top, 8)
-        .padding(.bottom, 4)
+        .padding(.top, 4)
     }
 }

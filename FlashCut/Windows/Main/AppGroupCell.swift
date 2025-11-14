@@ -5,7 +5,7 @@ struct AppGroupCell: View {
     @ObservedObject var viewModel: MainViewModel
     @State var visibleName: String = ""
     @FocusState private var isEditing: Bool
-    @Binding var appGroup: AppGroup
+    let appGroup: AppGroup
     let isCurrent: Bool
     @Binding var editingAppGroupId: UUID?
 
@@ -46,7 +46,7 @@ struct AppGroupCell: View {
                 let finalName = trimmedName.isEmpty ? "(empty)" : trimmedName
                 guard finalName != appGroup.name else { return }
                 appGroup.name = finalName
-                appGroupRepository.updateAppGroup(appGroup)
+                appGroupRepository.save()
                 visibleName = finalName
             }
     }

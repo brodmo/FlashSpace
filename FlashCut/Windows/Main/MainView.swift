@@ -34,7 +34,7 @@ struct MainView: View {
         VStack(alignment: .leading, spacing: 0) {
             if let appGroup = currentAppGroup {
                 AppGroupConfigurationView(
-                    appGroup: .constant(appGroup),
+                    appGroup: appGroup,
                     apps: currentApps
                 )
                 .padding(.bottom, 12)
@@ -58,10 +58,10 @@ struct MainView: View {
     private var appGroups: some View {
         VStack(alignment: .leading) {
             List(selection: $selectedAppGroupIds) {
-                ForEach($viewModel.appGroups) { $appGroup in
+                ForEach(viewModel.appGroups) { appGroup in
                     AppGroupCell(
                         viewModel: viewModel,
-                        appGroup: $appGroup,
+                        appGroup: appGroup,
                         isCurrent: currentAppGroupId == appGroup.id,
                         editingAppGroupId: $editingAppGroupId
                     )
